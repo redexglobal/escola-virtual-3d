@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex">
+<meta name="theme-color" content="#10202e">
+<title>Escola Virtual 3D</title>
+<link rel="stylesheet" href="style.css">
+<script type="importmap">{ "imports": { "three": "./vendor/three.module.min.js" } }</script>
+</head>
+<body>
+<canvas id="cena" aria-label="Escola virtual em 3D"></canvas>
+
+<!-- Tela de entrada (o clique libera som e voz no iPhone) -->
+<section id="entrada" class="entrada">
+  <div class="entrada-card">
+    <p class="selo">Demonstração</p>
+    <h1 id="nomeEscola">Escola Virtual</h1>
+    <p id="subEscola" class="sub"></p>
+    <ul class="dicas">
+      <li><b>Computador:</b> W A S D ou setas para andar, arraste o mouse para olhar.</li>
+      <li><b>Celular:</b> controle no canto esquerdo para andar, arraste a tela para olhar.</li>
+      <li>Entre numa sala: o educador recebe você, a TV passa a aula e o quadro tem exercícios.</li>
+    </ul>
+    <button id="btnEntrar" class="btn btn-prim" disabled>Carregando…</button>
+    <p id="semWebgl" class="aviso" hidden>Este aparelho não abriu o 3D (WebGL desligado). Tente outro navegador.</p>
+  </div>
+</section>
+
+<!-- Interface sobre a cena -->
+<header class="topo" id="topo" hidden>
+  <div class="local"><span class="ponto" id="corLocal"></span><span id="nomeLocal">Recepção</span></div>
+  <div class="pontos" title="Acertos nos exercícios">Acertos <b id="placar">0</b></div>
+</header>
+
+<nav class="salas" id="menuSalas" hidden aria-label="Ir para uma sala"></nav>
+<canvas id="mapa" class="mapa" width="150" height="190" hidden aria-label="Mapa da escola"></canvas>
+
+<div class="acoes" id="acoes" hidden>
+  <button class="btn" id="btnVideo">Assistir aula</button>
+  <button class="btn btn-prim" id="btnExercicio">Fazer exercício</button>
+  <button class="btn" id="btnEducador">Falar com o educador</button>
+</div>
+
+<div class="joystick" id="joystick" hidden><div class="manete" id="manete"></div></div>
+
+<!-- Exercício -->
+<div class="modal" id="modalExercicio" hidden role="dialog" aria-modal="true" aria-labelledby="exTitulo">
+  <div class="modal-card">
+    <button class="fechar" data-fechar aria-label="Fechar">×</button>
+    <p class="selo" id="exMateria"></p>
+    <h2 id="exTitulo"></h2>
+    <div class="opcoes" id="exOpcoes"></div>
+    <p class="explica" id="exExplica" hidden></p>
+    <div class="modal-pe"><span id="exProgresso"></span><button class="btn btn-prim" id="exProxima" hidden>Próxima</button></div>
+  </div>
+</div>
+
+<!-- Educador (tutor PHP em iframe) -->
+<div class="modal" id="modalEducador" hidden role="dialog" aria-modal="true" aria-label="Educador virtual">
+  <div class="modal-card modal-largo">
+    <button class="fechar" data-fechar aria-label="Fechar">×</button>
+    <div id="educadorCorpo"></div>
+  </div>
+</div>
+
+<footer class="credito" id="credito"></footer>
+
+<script type="module" src="app.js"></script>
+</body>
+</html>
