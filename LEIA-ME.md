@@ -4,6 +4,8 @@ Escola navegável em Three.js para a demo do ecossistema educacional: recepção
 (Matemática, Português, Ciências, História, Geografia, Inglês). Cada sala tem quadro, carteiras,
 TV com a aula em vídeo, exercícios com correção e o educador virtual.
 
+**No ar:** <https://redexglobal.github.io/escola-virtual-3d/> — repositório: <https://github.com/redexglobal/escola-virtual-3d>
+
 ## Como abrir
 Precisa de servidor (módulos JS não abrem por `file://`):
 
