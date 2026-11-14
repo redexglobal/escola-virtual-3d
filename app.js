@@ -1,5 +1,10 @@
 import * as THREE from 'three';
 import { ESCOLA, SALAS, AUTORIA } from './conteudo.js';
+import { garantirDados, db } from './dados.js';
+import { estadoApp } from './telas.js';
+import { minhaArea } from './modulo-aluno.js';
+import { secretaria } from './modulo-secretaria.js';
+import { aoVivo, mensageiro, feira, bibliotecaQr, chatIA } from './modulo-escola.js';
 
 // ---------- Planta da escola (metros) ----------
 const ALT = 3.6;            // pé-direito
@@ -309,6 +314,7 @@ const eu = { x: 0, z: 7, yaw: 0, pitch: -0.05 };
 const teclas = new Set();
 const joy = { x: 0, y: 0 };
 let rota = null; // caminho automático
+let pausado3d = false; // true enquanto um painel 2D está aberto
 
 function salaEm(x, z) {
   for (const st of estadoSalas.values()) {
@@ -396,6 +402,7 @@ function entrouEm(st) {
   salaAtual = st;
   $('nomeLocal').textContent = st ? st.s.nome : (eu.z > 0 ? 'Recepção' : 'Corredor');
   $('corLocal').style.background = st ? st.s.cor : '#94a3b8';
+  menu.querySelectorAll('button').forEach((b) => b.classList.toggle('on', b.dataset.sala === (st ? st.s.id : '')));
   $('acoes').hidden = !st;
   for (const o of estadoSalas.values()) if (o !== st && o.video && !o.video.paused) o.video.pause();
   if (st && !st.acenou) {
@@ -477,23 +484,29 @@ $('btnEducador').addEventListener('click', () => {
     const f = document.createElement('iframe');
     f.src = u.toString(); f.title = 'Educador virtual'; f.allow = 'microphone; autoplay';
     corpo.appendChild(f);
+    abreModal($('modalEducador'));
   } else {
-    corpo.innerHTML = `<div class="educador-vazio"><p class="selo">Educador virtual</p>
-      <h2>Conversa com o tutor ainda não ligada</h2>
-      <p>Para abrir o tutor aqui dentro, coloque o endereço dele em <code>conteudo.js</code>, no campo <code>tutorUrl</code>
-      (por exemplo, a página do roboAlotv.php no servidor). A matéria da sala vai junto no endereço como <code>?materia=</code>.</p></div>`;
+    // Tutor PHP ainda não ligado: o educador da própria escola responde e fala
+    chatIA({
+      contexto: {
+        disciplina: salaAtual ? salaAtual.s.nome : '',
+        explicacao: salaAtual ? salaAtual.s.tema : '',
+      },
+      falarNo3D: true,
+    });
   }
-  abreModal($('modalEducador'));
 });
 
 // menu de salas
 const menu = $('menuSalas');
 const bRec = document.createElement('button');
 bRec.innerHTML = '<span class="ponto"></span>Recepção';
+bRec.dataset.sala = '';
 bRec.addEventListener('click', () => irPara(null));
 menu.appendChild(bRec);
 for (const s of SALAS) {
   const b = document.createElement('button');
+  b.dataset.sala = s.id;
   b.innerHTML = `<span class="ponto" style="background:${s.cor}"></span>${s.nome}`;
   b.addEventListener('click', () => irPara(s.id));
   menu.appendChild(b);
@@ -532,8 +545,8 @@ function passo() {
   const dt = Math.min(relogio.getDelta(), 0.05);
   const agora = performance.now();
 
-  // caminho automático
-  if (rota) {
+  // caminho automático (pausa quando um painel 2D está aberto)
+  if (!pausado3d && rota) {
     const alvo = rota.pontos[0];
     const dx = alvo.x - eu.x, dz = alvo.z - eu.z, d = Math.hypot(dx, dz);
     const v = 6 * dt;
@@ -548,7 +561,7 @@ function passo() {
       let dy = rota.yawFinal - eu.yaw; dy = Math.atan2(Math.sin(dy), Math.cos(dy));
       eu.yaw += dy; rota = null;
     }
-  } else {
+  } else if (!pausado3d) {
     let f = joy.y, l = joy.x;
     if (teclas.has('KeyW') || teclas.has('ArrowUp')) f += 1;
     if (teclas.has('KeyS') || teclas.has('ArrowDown')) f -= 1;
@@ -590,16 +603,56 @@ function passo() {
 
 // ---------- Entrar ----------
 const btn = $('btnEntrar');
-btn.disabled = false;
-btn.textContent = 'Entrar na escola';
+(async () => {
+  try {
+    await Promise.race([garantirDados(), new Promise((r) => setTimeout(r, 6000))]); // nunca trava a entrada
+    try {
+      const s = await db.porId('config', 'sessao');
+      if (s) { estadoApp.alunoId = s.alunoId || null; estadoApp.papel = s.papel || 'aluno'; }
+    } catch {}
+  } catch (e) { console.warn('Dados da escola não carregaram:', e); }
+  btn.disabled = false;
+  btn.textContent = 'Entrar na escola';
+})();
 btn.addEventListener('click', () => {
   $('entrada').hidden = true;
-  ['topo', 'menuSalas', 'mapa', 'joystick'].forEach((id) => ($(id).hidden = false));
+  ['topo', 'menuSalas', 'mapa', 'joystick', 'btnMenu'].forEach((id) => ($(id).hidden = false));
   if (!matchMedia('(hover:hover) and (pointer:fine)').matches) $('joystick').hidden = false;
   fala(`Bem-vindo à ${ESCOLA.nome}. Escolha uma sala para começar.`);
 });
 entrouEm(null);
 requestAnimationFrame(passo);
 
+// ---------- Menu dos módulos (painéis 2D sobre a cena) ----------
+const btnMenu = $('btnMenu'), menuEscola = $('menuEscola');
+const MODULOS = [
+  ['👤 Minha área (aluno)', () => minhaArea({ falar: fala })],
+  ['🏫 Secretaria (direção)', () => secretaria()],
+  ['🔴 Ao vivo (aula + chat)', () => aoVivo()],
+  ['💬 Mensageiro e ligação', () => mensageiro()],
+  ['🛒 Feira de reforço', () => feira(estadoApp.alunoId)],
+  ['📚 Biblioteca de QR codes', () => bibliotecaQr()],
+];
+function fechaMenuEscola() { menuEscola.hidden = true; btnMenu.setAttribute('aria-expanded', 'false'); }
+for (const [nome, fn] of MODULOS) {
+  const b = document.createElement('button');
+  b.className = 'menu-item';
+  b.textContent = nome;
+  b.addEventListener('click', () => { fechaMenuEscola(); fn(); });
+  menuEscola.appendChild(b);
+}
+btnMenu.addEventListener('click', (e) => {
+  e.stopPropagation();
+  const abrio = menuEscola.hidden;
+  menuEscola.hidden = !abrio;
+  btnMenu.setAttribute('aria-expanded', String(abrio));
+});
+document.addEventListener('click', (e) => {
+  if (!menuEscola.hidden && !menuEscola.contains(e.target) && e.target !== btnMenu) fechaMenuEscola();
+});
+
 // para testes automáticos
-window.__escola = { eu, irPara, estado: () => ({ sala: salaAtual?.s.id || null, x: eu.x, z: eu.z, acertos }) };
+window.__escola = {
+  eu, irPara, pausar: (v) => { pausado3d = !!v; },
+  estado: () => ({ sala: salaAtual?.s.id || null, x: eu.x, z: eu.z, acertos }),
+};

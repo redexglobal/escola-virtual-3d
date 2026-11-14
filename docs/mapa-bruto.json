@@ -1,0 +1,638 @@
+{
+ "x_series.html": {
+  "size": 53162,
+  "title": "Séries • Personal Educador",
+  "headings": [
+   "Séries",
+   "Séries cadastradas",
+   "Séries Oficiais",
+   "Outros Módulos",
+   "Nova Série",
+   "Confirmar operação"
+  ],
+  "buttons": [
+   "Nova série",
+   "Séries Oficiais4",
+   "Outros Módulos17",
+   "Editar",
+   "Excluir",
+   "Salvar série",
+   "Cancelar",
+   "Confirmar"
+  ],
+  "inputs": [
+   "action",
+   "id",
+   "nome"
+  ],
+  "apis": []
+ },
+ "x_crudresp.html": {
+  "size": 60305,
+  "title": "Responsáveis • Pais",
+  "headings": [
+   "Pais",
+   "Excluir responsável?"
+  ],
+  "buttons": [
+   "Responsáveis",
+   "Fechar",
+   "Novo",
+   "Atualizar",
+   "Selecionar / adicionar alunos",
+   "Limpar seleção",
+   "Cancelar",
+   "Salvar",
+   "Aplicar seleção",
+   "Excluir"
+  ],
+  "inputs": [],
+  "apis": []
+ },
+ "x_aulas.html": {
+  "size": 49587,
+  "title": "Alissom - Aulas",
+  "headings": [
+   "Alissom",
+   "Aulas",
+   "Aviso"
+  ],
+  "buttons": [
+   "Aulas",
+   "Postagens normais",
+   "Fechar"
+  ],
+  "inputs": [],
+  "apis": []
+ },
+ "x_areas.html": {
+  "size": 49539,
+  "title": "Áreas de Estudos • Personal Educador",
+  "headings": [
+   "Áreas de Estudos",
+   "Áreas cadastradas",
+   "Lista de áreas",
+   "Nova Área de Estudos",
+   "Confirmar operação"
+  ],
+  "buttons": [
+   "Nova área",
+   "Editar",
+   "Excluir",
+   "Salvar área",
+   "Cancelar",
+   "Confirmar"
+  ],
+  "inputs": [
+   "action",
+   "id",
+   "nome",
+   "foto"
+  ],
+  "apis": []
+ },
+ "x_subcats.html": {
+  "size": 54771,
+  "title": "Subcategorias • Personal Educador",
+  "headings": [
+   "Subcategorias",
+   "Subcategorias cadastradas",
+   "Lista de subcategorias",
+   "Nova Subcategoria",
+   "Confirmar operação"
+  ],
+  "buttons": [
+   "Nova subcategoria",
+   "Editar",
+   "Excluir",
+   "Salvar subcategoria",
+   "Cancelar",
+   "Confirmar"
+  ],
+  "inputs": [
+   "action",
+   "id",
+   "nome"
+  ],
+  "apis": []
+ },
+ "x_disciplinas.html": {
+  "size": 42255,
+  "title": "Disciplinas • Personal Educador",
+  "headings": [
+   "Disciplinas",
+   "Disciplinas cadastradas",
+   "Lista de disciplinas",
+   "Nova Disciplina",
+   "Confirmar operação"
+  ],
+  "buttons": [
+   "Nova disciplina",
+   "Editar",
+   "Excluir",
+   "Salvar disciplina",
+   "Cancelar",
+   "Confirmar"
+  ],
+  "inputs": [
+   "action",
+   "id",
+   "nome"
+  ],
+  "apis": []
+ },
+ "x_planoresp.html": {
+  "size": 461,
+  "title": "",
+  "headings": [],
+  "buttons": [],
+  "inputs": [],
+  "apis": []
+ },
+ "x_chat.html": {
+  "size": 0,
+  "title": "",
+  "headings": [],
+  "buttons": [],
+  "inputs": [],
+  "apis": []
+ },
+ "x_robopersonal.html": {
+  "size": 41464,
+  "title": "Robô Personal",
+  "headings": [],
+  "buttons": [],
+  "inputs": [],
+  "apis": [
+   "personal_api.php"
+  ]
+ },
+ "x_qrcodes.html": {
+  "size": 87065,
+  "title": "QR Codes do Material Didatico",
+  "headings": [
+   "Acervo de QR Codes do Material Didatico",
+   "Novo QR Code",
+   "Estrutura academica"
+  ],
+  "buttons": [
+   "Novo QR Code",
+   "Estrutura academica",
+   "Ocultar",
+   "Salvar QR Code"
+  ],
+  "inputs": [
+   "acao",
+   "id"
+  ],
+  "apis": []
+ },
+ "x_relatorios.html": {
+  "size": 294673,
+  "title": "Relatórios • MonitON",
+  "headings": [
+   "Relatórios"
+  ],
+  "buttons": [
+   "Menu",
+   "Fechar",
+   "Cadastros",
+   "Atualizar",
+   "Exportar CSV",
+   "Imprimir",
+   "Limpar",
+   "Movimentações",
+   "Financeiro por aluno",
+   "Turmas Oficiais"
+  ],
+  "inputs": [],
+  "apis": [
+   "personal_api.php?lang=pt-BR&amp;locale=pt_BR&amp;charset=UTF-8&amp;db_charset=utf8mb4&amp;collation=utf8mb4_unicode_ci"
+  ]
+ },
+ "x_responsaveis.html": {
+  "size": 23066,
+  "title": "Papel Responsaveis — MonitON",
+  "headings": [
+   "Papel Responsaveis",
+   "Responsáveis"
+  ],
+  "buttons": [
+   "Menu"
+  ],
+  "inputs": [],
+  "apis": [
+   "personal_api.php:",
+   "personal_api.php?moniton_papel=ADMIN&amp;moniton_trocar=1",
+   "personal_api.php?moniton_papel=ALUNO&amp;moniton_trocar=1",
+   "personal_api.php?moniton_papel=PROFESSOR&amp;moniton_trocar=1"
+  ]
+ },
+ "x_robodiretoria.html": {
+  "size": 244546,
+  "title": "Assistente da Diretoria",
+  "headings": [
+   "Digite seu nome",
+   "Minha metodologia de análise",
+   "Documento da metodologia",
+   "Biblioteca de prompts",
+   "Escrever prompt",
+   "Prompt adotado",
+   "Conteúdo da metodologia",
+   "Análises",
+   "Tamanho das respostas",
+   "Escolha sua voz",
+   "Sintetizador do aparelho",
+   "Vozes naturais em português do Brasil",
+   "Selecionar aluno"
+  ],
+  "buttons": [
+   "Nome",
+   "Tamanho das respostas",
+   "Voz",
+   "Consultar e analisar",
+   "Metodologia PDF / TXT",
+   "Prompts (até 10)",
+   "Ver prompt",
+   "Abrir TXT / PDF",
+   "Limpar conversa",
+   "×",
+   "Continuar",
+   "Fechar ×",
+   "01 · Metodologia",
+   "02 · Meus prompts",
+   "03 · Prompt adotado",
+   "Carregar / trocar metodologia",
+   "Visualizar TXT / PDF",
+   "Salvar prompt",
+   "Adotar este prompt",
+   "Excluir",
+   "Editar prompt adotado",
+   "Visualizar metodologia",
+   "Voltar",
+   "A−",
+   "A+"
+  ],
+  "inputs": [],
+  "apis": [
+   "personal_api.php",
+   "personal_api.php."
+  ]
+ },
+ "x_teacher3.html": {
+  "size": 0,
+  "title": "",
+  "headings": [],
+  "buttons": [],
+  "inputs": [],
+  "apis": []
+ },
+ "x_turmas.html": {
+  "size": 113306,
+  "title": "Turmas e Cursos | MonitON",
+  "headings": [
+   "Turmas e Cursos",
+   "Alunos do curso"
+  ],
+  "buttons": [
+   "Secretaria",
+   "Fechar",
+   "Cursos do professor",
+   "Cursos e turmas do aluno",
+   "Pesquisar"
+  ],
+  "inputs": [
+   "aba",
+   "q",
+   "aluno_q"
+  ],
+  "apis": []
+ },
+ "x_papelprofessor.html": {
+  "size": 255788,
+  "title": "MonitON",
+  "headings": [
+   "1. Plataforma e aceitação",
+   "2. Finalidade educacional",
+   "3. Perfis de acesso",
+   "4. Turma Oficial e Marketplace",
+   "5. Cadastro e credenciais",
+   "6. Responsabilidades da escola e dos professores",
+   "7. Alunos e responsáveis",
+   "8. Compras de reforço",
+   "9. Conteúdos e propriedade intelectual",
+   "10. Condutas proibidas",
+   "11. Privacidade e dados pessoais",
+   "12. Disponibilidade e evolução",
+   "13. Suspensão e segurança",
+   "14. Alterações dos Termos",
+   "15. Legislação e contato",
+   "1. Escopo",
+   "2. Participantes do tratamento",
+   "3. Dados que podem ser tratados",
+   "4. Finalidades",
+   "5. Bases legais",
+   "6. Crianças e adolescentes",
+   "7. Compartilhamento",
+   "8. Cookies e armazenamento local",
+   "9. Segurança",
+   "10. Retenção e eliminação"
+  ],
+  "buttons": [
+   "&times;",
+   "Imprimir termos",
+   "Entendi",
+   "Menu",
+   "Fechar",
+   "Alissom Professor (modo Diretor)",
+   "Sair da conta",
+   "Turmas que leciono",
+   "Ir para o inícioVoltar ao começo da página",
+   "−",
+   "Tentar novamente"
+  ],
+  "inputs": [],
+  "apis": [
+   "personal_api.php,",
+   "personal_api.php.",
+   "personal_api.php?ca9x_tab=",
+   "personal_api.php?moniton_papel=ADMIN&amp;moniton_trocar=1",
+   "personal_api.php?moniton_papel=ALUNO&amp;moniton_trocar=1",
+   "personal_api.php?moniton_papel=PROFESSOR&amp;moniton_trocar=1",
+   "personal_api.php?moniton_papel=PROFESSOR&amp;moniton_usuario_id=392",
+   "personal_api.php?moniton_papel=PROFESSOR&amp;moniton_usuario_id=444",
+   "personal_api.php?moniton_papel=PROFESSOR&amp;moniton_usuario_id=492",
+   "personal_api.php?moniton_papel=PROFESSOR&amp;moniton_usuario_id=494",
+   "personal_api.php?moniton_papel=PROFESSOR&amp;moniton_usuario_id=503",
+   "personal_api.php?moniton_papel=PROFESSOR&amp;moniton_usuario_id=506",
+   "personal_api.php?moniton_papel=PROFESSOR&amp;moniton_usuario_id=516",
+   "uploadfoto_api.php"
+  ]
+ },
+ "x_tela_teacher.html": {
+  "size": 0,
+  "title": "",
+  "headings": [],
+  "buttons": [],
+  "inputs": [],
+  "apis": []
+ },
+ "x_mensagens.html": {
+  "size": 58295,
+  "title": "Mensagens",
+  "headings": [
+   "Como funciona o Mensageiro",
+   "Ligação de voz",
+   "Como foi a qualidade da ligação?"
+  ],
+  "buttons": [
+   "Fechar",
+   "☎",
+   "☆",
+   "Agora não"
+  ],
+  "inputs": [],
+  "apis": [
+   "crj_voice_call_api.php"
+  ]
+ },
+ "x_voicecall.html": {
+  "size": 23,
+  "title": "",
+  "headings": [],
+  "buttons": [],
+  "inputs": [],
+  "apis": []
+ },
+ "x_crudaluno.html": {
+  "size": 114690,
+  "title": "Alunos | MonitON",
+  "headings": [
+   "Alunos"
+  ],
+  "buttons": [
+   "Secretaria",
+   "Fechar",
+   "Atualizar",
+   "Novo Aluno",
+   "Carregar foto",
+   "Tirar foto agora",
+   "Fotografar",
+   "Fechar câmera",
+   "Confirmar",
+   "Cancelar",
+   "Matricular aluno",
+   "Turma Oficial",
+   "Curso de Reforço",
+   "Não",
+   "Sim, é QVP",
+   "Criar Turma Oficial",
+   "Concluir",
+   "Continuar",
+   "OK",
+   "Sim, confirmar"
+  ],
+  "inputs": [],
+  "apis": []
+ },
+ "x_teacher2.html": {
+  "size": 0,
+  "title": "",
+  "headings": [],
+  "buttons": [],
+  "inputs": [],
+  "apis": []
+ },
+ "painel.html": {
+  "size": 360562,
+  "title": "Alissom • Responsável pelo curso: Não informado - Personal Educador",
+  "headings": [
+   "Alissom",
+   "Sobre o Curso",
+   "O que o aluno vai aprender",
+   "Descrição dos assuntos das aulas",
+   "Objetivo geral",
+   "Objetivos específicos",
+   "Professor ou responsável",
+   "Apresentação",
+   "Ao vivo",
+   "Suporte",
+   "Foto do aluno",
+   "Atualizar informações",
+   "Anotações",
+   "Mídias das anotações",
+   "Acadêmico",
+   "Certificado",
+   "Revisar Contrato",
+   "Termos de uso",
+   "Contrato de utilização da plataforma",
+   "Financeiro",
+   "Não definido",
+   "Extrato de pagamentos",
+   "Confirme seu e-mail para assistir",
+   "Aviso",
+   "Ligação de voz"
+  ],
+  "buttons": [
+   "Personal Educador",
+   "Sobre o Curso",
+   "Apresentação",
+   "Ao vivo",
+   "Aulas",
+   "Anotações",
+   "Acadêmico",
+   "Revisar Contrato",
+   "Financeiro",
+   "Compartilhar curso",
+   "Sair",
+   "Iniciar transmissão",
+   "Cutucar professor",
+   "Chat com texto e voz0",
+   "Silenciar áudio",
+   "Limpar",
+   "Salvar mídia",
+   "Remover",
+   "Metas",
+   "Resultados",
+   "Boletim",
+   "Certificado",
+   "Histórico",
+   "Pagar próxima parcela",
+   "Ver extrato de pagamentos"
+  ],
+  "inputs": [
+   "email"
+  ],
+  "apis": [
+   "crj_voice_call_api.php",
+   "live_signal.php",
+   "personal_api.php"
+  ]
+ },
+ "area.html": {
+  "size": 426505,
+  "title": "MonitON",
+  "headings": [
+   "1. Plataforma e aceitação",
+   "2. Finalidade educacional",
+   "3. Perfis de acesso",
+   "4. Turma Oficial e Marketplace",
+   "5. Cadastro e credenciais",
+   "6. Responsabilidades da escola e dos professores",
+   "7. Alunos e responsáveis",
+   "8. Compras de reforço",
+   "9. Conteúdos e propriedade intelectual",
+   "10. Condutas proibidas",
+   "11. Privacidade e dados pessoais",
+   "12. Disponibilidade e evolução",
+   "13. Suspensão e segurança",
+   "14. Alterações dos Termos",
+   "15. Legislação e contato",
+   "1. Escopo",
+   "2. Participantes do tratamento",
+   "3. Dados que podem ser tratados",
+   "4. Finalidades",
+   "5. Bases legais",
+   "6. Crianças e adolescentes",
+   "7. Compartilhamento",
+   "8. Cookies e armazenamento local",
+   "9. Segurança",
+   "10. Retenção e eliminação"
+  ],
+  "buttons": [
+   "&times;",
+   "Imprimir termos",
+   "Entendi",
+   "Menu",
+   "Fechar",
+   "Alissom Diretor — Secretaria",
+   "Sair da conta",
+   "O que fazer primeiro?",
+   "← Voltar",
+   "Tentar novamente",
+   "Atualizar diagnóstico",
+   "−",
+   "Aulas de reforço",
+   "Turmas oficiais e aulas de reforço",
+   "Ver os cursos disponíveis",
+   "Turmas que lecionoAdministrar cursos e turmas",
+   "Ir para o inícioVoltar ao começo da página"
+  ],
+  "inputs": [],
+  "apis": [
+   "personal_api.php",
+   "personal_api.php,",
+   "personal_api.php.",
+   "personal_api.php?ca9x_tab=",
+   "personal_api.php?moniton_papel=ALUNO&amp;moniton_trocar=1",
+   "personal_api.php?moniton_papel=ALUNO\\u0026moniton_trocar=1\\u0026lang=pt-BR\\u0026locale=pt_BR\\u0026charset=UTF-8\\u0026db_charset=utf8mb4\\u0026collation=utf8mb4_unicode_ci",
+   "personal_api.php?moniton_papel=PROFESSOR&amp;moniton_trocar=1",
+   "personal_api.php?moniton_papel=PROFESSOR\\u0026moniton_trocar=1\\u0026lang=pt-BR\\u0026locale=pt_BR\\u0026charset=UTF-8\\u0026db_charset=utf8mb4\\u0026collation=utf8mb4_unicode_ci",
+   "uploadfoto_api.php"
+  ]
+ },
+ "m_crj.php": {
+  "size": 386845,
+  "title": "MonitON • Plano de Estudo, Metas e Resultados",
+  "headings": [
+   "GEST&#195;O DE APRENDIZAGEM Plano de Estudo, Metas e Resultados.",
+   "Desempenho por área de conhecimento",
+   "Desempenho por disciplinas",
+   "Evolução por temas da ementa",
+   "Radar acadêmico por áreas e competências",
+   "Mapa de participação versus domínio",
+   "Presença acadêmica ao longo do período",
+   "Evolução da redação",
+   "Mapa de calor por tema e competência",
+   "Aluno versus média da turma",
+   "Histograma acadêmico de distribuição",
+   "Perfil técnico por competências",
+   "Presença e desempenho por unidades",
+   "Curva acumulada de aprendizagem",
+   "Veja as vantagens para sua instituição",
+   "Plano de estudo e resultados acompanhados pela instituição",
+   "Metas e relatórios de aproveitamento",
+   "Resultados por turma, curso e período",
+   "Portal institucional e página própria",
+   "Produção audiovisual para conteúdos institucionais",
+   "Imagem, áudio e luz pensados para valorizar o conteúdo do professor",
+   "Edição e finalização para transformar as gravações em aulas prontas para publicar",
+   "Plataforma adequada para gestão educacional",
+   "Um espaço para organizar, apresentar e acessar cursos e conteúdos.",
+   "Área do Professor: planejamento, conteúdo e acompanhamento"
+  ],
+  "buttons": [
+   "Mais",
+   "Login",
+   "Cadastrar instituição",
+   "Cursos",
+   "Aulas Gratuitas",
+   "Formações",
+   "Professores",
+   "Inteligência artificial",
+   "Preço",
+   "Dúvidas frequentes",
+   "Quero aproveitar",
+   "Inscreva-se",
+   "App Store",
+   "Google Play",
+   "&times;",
+   "Fazer login",
+   "Continuar com Google",
+   "Recuperar senha",
+   "E-mail",
+   "Cód. de Usuário",
+   "−"
+  ],
+  "inputs": [
+   "nome",
+   "email",
+   "tipo_login",
+   "usuario",
+   "senha"
+  ],
+  "apis": [
+   "personal_api.php."
+  ]
+ }
+}

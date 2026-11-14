@@ -1,0 +1,34 @@
+import { createRequire } from 'module';
+const require = createRequire('/Users/macbookair/projetos/Toca-Card/x.js');
+const { chromium } = require('playwright');
+
+require('fs').rmSync('/tmp/esp-dbg', { recursive: true, force: true });
+const b = await chromium.launchPersistentContext('/tmp/esp-dbg', { viewport: { width: 1280, height: 800 }, locale: 'pt-BR' });
+const p = b.pages()[0] || await b.newPage();
+p.on('console', (m) => console.log('CONSOLE', m.type(), m.text().slice(0, 200)));
+p.on('pageerror', (e) => console.log('PAGEERROR', e.message));
+
+await p.goto('http://localhost:8811/', { waitUntil: 'load' });
+await p.waitForSelector('#btnEntrar:not([disabled])', { timeout: 20000 });
+await p.click('#btnEntrar');
+await p.waitForTimeout(500);
+await p.click('#btnMenu');
+await p.click('#menuEscola .menu-item:has-text("Ao vivo")');
+await p.waitForTimeout(800);
+const btnIniciar = p.locator('.modal-din .botoes:has-text("Iniciar transmissão")').first();
+console.log('botao iniciar visivel:', await btnIniciar.count());
+await btnIniciar.click();
+await p.waitForTimeout(1200);
+console.log('após iniciar: botao =', await p.locator('.modal-din .painel-topo .botoes').first().textContent());
+const input = p.locator('.chat-linha input');
+console.log('input habilitado:', await input.isEnabled());
+await input.fill('Olá professor!');
+await p.locator('.chat-linha button:has-text("Enviar")').click();
+await p.waitForTimeout(2500);
+const html = await p.evaluate(() => document.querySelector('#painel .chat-lista')?.innerHTML.slice(0, 400) || 'SEM LISTA');
+console.log('HTML do chat:', html.replace(/\n/g, ' '));
+const dbmsgs = await p.evaluate(async () => (await (await import('/dados.js')).db.lista('chatAovivo')).map((m) => `${m.tipo}/${m.autor}: ${m.texto}`));
+console.log('banco chatAovivo:', JSON.stringify(dbmsgs, null, 0));
+const toastTxt = await p.evaluate(() => document.querySelector('.toast')?.textContent || 'sem toast visível');
+console.log('toast:', toastTxt);
+await b.close();

@@ -1,0 +1,21 @@
+<!-- Página temporária de teste: cria um banco antigo (v1, sem "config") para simular navegador atual. -->
+<!doctype html><meta charset="utf-8"><title>seed antigo</title>
+<script>
+const COLS_ANTIGO = ['alunos','professores','responsaveis','diretores','escolas','areas','disciplinas','series','subcategorias','turmas','matriculas','contratos','compras','extrato','notas','metas','certificados','aulasPosts','anotacoes','chatAovivo','mensagens','ligacoes','qrcodes','ia'];
+function etapa(s){ document.title = s; console.log('ETAPA', s); }
+const primeira = indexedDB.open('kairos-escola', 1);
+primeira.onupgradeneeded = (e) => { const d = e.target.result; for (const c of COLS_ANTIGO) if (!d.objectStoreNames.contains(c)) d.createObjectStore(c, { keyPath: 'id' }); };
+primeira.onerror = () => etapa('ERRO-ABRIU:' + primeira.error);
+primeira.onsuccess = () => {
+  etapa('ABERTO ' + [...primeira.result.objectStoreNames].length + ' stores');
+  const q2 = indexedDB.open('kairos-escola', 1);
+  q2.onerror = () => etapa('ERRO-Q2:' + q2.error);
+  q2.onsuccess = () => {
+    const t = q2.result.transaction(COLS_ANTIGO, 'readwrite'); // array de stores
+    t.onerror = () => etapa('ERRO-TX:' + t.error.message);
+    t.objectStore('ia').put({ id: '1', metodologia: 'antiga', prompts: [], promptAdotado: '' });
+    t.oncomplete = () => etapa('SEED-V1-OK');
+  };
+};
+</script>
+<body>carregando…</body>
