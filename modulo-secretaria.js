@@ -8,6 +8,7 @@ export function secretaria() {
   const painel = abrePainel({
     titulo: 'Secretaria', sub: 'Cadastros e gestão acadêmica em um só lugar · acesso da direção', largo: true,
     tabs: [
+      { id: 'visao', nome: 'Visão geral', render: tabVisao },
       { id: 'alunos', nome: 'Alunos', render: tabAlunos },
       { id: 'professores', nome: 'Professores', render: tabProfessores },
       { id: 'responsaveis', nome: 'Responsáveis', render: tabResponsaveis },
@@ -18,6 +19,50 @@ export function secretaria() {
       { id: 'ia', nome: 'Assistente IA', render: tabIA },
     ],
   });
+
+  // ---------- Visão geral (dashboard com números reais do banco local) ----------
+  async function tabVisao(c) {
+    const [alunos, matriculas, professores, turmas, contratos, extrato, qrcodes] = await Promise.all([
+      db.lista('alunos'), db.lista('matriculas'), db.lista('professores'), db.lista('turmas'), db.lista('contratos'), db.lista('extrato'), db.lista('qrcodes'),
+    ]);
+    const contratado = contratos.reduce((s, x) => s + (x.valorTotal || 0), 0);
+    const pago = extrato.filter((x) => x.tipo === 'pagamento').reduce((s, x) => s + (x.valor || 0), 0);
+    const abertas = matriculas.filter((m) => m.tipo === 'oficial').length;
+    const reforcos = matriculas.filter((m) => m.tipo === 'reforco').length;
+    c.appendChild(el('h4', '', 'Números da escola hoje'));
+    const resumo = el('div', 'fin-resumo');
+    resumo.innerHTML = [
+      ['Alunos', String(alunos.length)],
+      ['Matrículas oficiais', String(abertas)],
+      ['Reforços ativos', String(reforcos)],
+      ['Professores', String(professores.length)],
+      ['Turmas e cursos', String(turmas.length)],
+      ['QR codes de material', String(qrcodes.length)],
+    ].map(([k, v]) => `<div class="fin-cel"><span>${k}</span><b>${v}</b></div>`).join('');
+    c.appendChild(resumo);
+    const caixa = el('div', 'fin-resumo');
+    caixa.innerHTML = [
+      ['Contratado', money(contratado)],
+      ['Recebido', money(pago)],
+      ['Em aberto', money(Math.max(0, contratado - pago))],
+    ].map(([k, v]) => `<div class="fin-cel"><span>${k}</span><b>${v}</b></div>`).join('');
+    c.appendChild(caixa);
+    c.appendChild(el('p', 'dica-suave', 'Todos os números vêm dos dados desta demonstração (navegador). Os mesmos cards vão ficar ligados ao servidor PHP na versão da escola cliente.'));
+    const ocup = el('div', '');
+    ocup.appendChild(el('h4', '', 'Ocupação das turmas oficiais'));
+    const oficiais = turmas.filter((t) => t.tipo === 'oficial');
+    for (const t of oficiais) {
+      const n = matriculas.filter((m) => m.turmaId === t.id).length;
+      const pct = Math.min(100, Math.round((100 * n) / Math.max(1, t.vagas || 30)));
+      const barra = el('div', 'barra-metas');
+      barra.appendChild(el('i', '', ''));
+      barra.firstChild.style.width = pct + '%';
+      ocup.appendChild(barra);
+      ocup.appendChild(el('p', 'meta-linha', `${t.nome}: ${n} alunos matriculados`));
+    }
+    if (!oficiais.length) ocup.appendChild(el('p', 'sub', 'Sem turmas oficiais cadastradas.'));
+    c.appendChild(ocup);
+  }
 
   // ---------- Alunos ----------
   async function tabAlunos(c) {

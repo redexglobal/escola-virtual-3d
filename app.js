@@ -5,6 +5,9 @@ import { estadoApp } from './telas.js';
 import { minhaArea } from './modulo-aluno.js';
 import { secretaria } from './modulo-secretaria.js';
 import { aoVivo, mensageiro, feira, bibliotecaQr, chatIA } from './modulo-escola.js';
+import { professor } from './modulo-professor.js';
+import { revendedor } from './modulo-revendedor.js';
+import { iniciaHud, registrarVisita, registrarQuestao, registrarConclusao, registrarVideo } from './gamificacao.js';
 
 // ---------- Planta da escola (metros) ----------
 const ALT = 3.6;            // pé-direito
@@ -180,6 +183,28 @@ for (const lado of [-1, 1]) {
   placa(5.2, 2.92, tex, 0, 1.9, Z_FIM + 0.01, 0);
 }
 
+// ---------- Objetos clicáveis (raycast): portas, TVs, educadores, quadro de turmas ----------
+const clicaveis = [];
+const raycaster = new THREE.Raycaster();
+function objetoClicavel(e) {
+  const b = canvas.getBoundingClientRect();
+  raycaster.setFromCamera(new THREE.Vector2(((e.clientX - b.left) / b.width) * 2 - 1, -((e.clientY - b.top) / b.height) * 2 + 1), camera);
+  return raycaster.intersectObjects(clicaveis, false)[0] || null;
+}
+
+function desenhaPorta(s, porta, rotuloTurma) {
+  const c = porta.canvas.getContext('2d'), w = porta.canvas.width, h = porta.canvas.height;
+  c.fillStyle = s.cor; c.fillRect(0, 0, w, h);
+  c.fillStyle = '#fff'; c.textAlign = 'center'; c.textBaseline = 'middle';
+  if (rotuloTurma) {
+    c.font = '700 52px system-ui'; c.fillText(s.nome, w / 2, 52);
+    c.font = '500 32px system-ui'; c.fillText(rotuloTurma, w / 2, 118);
+  } else {
+    c.font = '700 58px system-ui'; c.fillText(s.nome, w / 2, h / 2);
+  }
+  porta.tex.needsUpdate = true;
+}
+
 // ---------- Salas ----------
 const estadoSalas = new Map();
 
@@ -244,12 +269,12 @@ for (const s of SALAS) {
   caixa(r.x0, r.x1, 1.0, 1.15, r.z0, r.z0 + 0.01, mat(s.cor));
   for (const dz of [-3, 3]) for (const dx of [6, 10]) caixa(L * dx - 0.9, L * dx + 0.9, ALT - 0.04, ALT, s.z + dz - 0.5, s.z + dz + 0.5, mat('#ffffff', { emissive: '#fffbe8' }));
 
-  // placa da porta no corredor
-  const { tex: texPorta } = texturaCanvas(512, 128, (c, w, h) => {
-    c.fillStyle = s.cor; c.fillRect(0, 0, w, h);
-    c.fillStyle = '#fff'; c.font = '700 58px system-ui'; c.textAlign = 'center'; c.textBaseline = 'middle'; c.fillText(s.nome, w / 2, h / 2 + 2);
-  });
-  placa(2.0, 0.5, texPorta, L * (CW - 0.01), 2.85, s.z, olhaPara(L));
+  // placa da porta no corredor (toque nela para entrar; atualiza com a turma depois dos dados)
+  const porta = texturaCanvas(512, 160, () => {});
+  desenhaPorta(s, porta, '');
+  const pPorta = placa(2.0, 0.63, porta.tex, L * (CW - 0.01), 2.85, s.z, olhaPara(L));
+  pPorta.userData.onClique = () => irPara(s.id);
+  clicaveis.push(pPorta);
   // batente da porta
   for (const dz of [-PORTA, PORTA]) caixa(L * CW - 0.08, L * CW + 0.08, 0, 2.4, s.z + dz - 0.06, s.z + dz + 0.06, mat(s.cor));
 
@@ -270,7 +295,9 @@ for (const s of SALAS) {
   // TV com a aula em vídeo, na parede lateral
   const zTv = r.z0 + 0.03;
   const tv = texturaCanvas(1024, 576, (c, w, h) => desenhaTv(c, w, h, s, 'Toque em "Assistir aula"'));
-  caixa(L * 9 - 2.15, L * 9 + 2.15, 0.85, 3.15, r.z0, r.z0 + 0.06, mat('#111'));
+  const tvMoldura = caixa(L * 9 - 2.15, L * 9 + 2.15, 0.85, 3.15, r.z0, r.z0 + 0.06, mat('#111'));
+  tvMoldura.userData.onClique = () => { if (salaAtual && salaAtual.s.id === s.id) assistir(); else irPara(s.id); };
+  clicaveis.push(tvMoldura);
   const telaTv = placa(4, 2.25, tv.tex, L * 9, 2.0, zTv + 0.04, 0);
 
   // carteiras (3 x 3) voltadas para o quadro
@@ -283,15 +310,70 @@ for (const s of SALAS) {
     }
   }
 
-  // educador virtual
+  // educador virtual (tocar nele abre a conversa; de fora da sala, anda até lá)
   const edu = criaEducador(s);
   edu.grupo.position.set(L * 12.6, 0, s.z + 3.6);
   edu.grupo.rotation.y = olhaPara(L);
   scene.add(edu.grupo);
   bloqueios.push({ x0: L * 12.6 - 0.4, x1: L * 12.6 + 0.4, z0: s.z + 3.2, z1: s.z + 4.0 });
+  const hitEdu = new THREE.Mesh(new THREE.SphereGeometry(1.05, 8, 8), new THREE.MeshBasicMaterial({ transparent: true, opacity: 0, depthWrite: false }));
+  hitEdu.position.set(0, 1.05, 0);
+  hitEdu.userData.onClique = () => { if (salaAtual && salaAtual.s.id === s.id) $('btnEducador').click(); else irPara(s.id); };
+  edu.grupo.add(hitEdu);
+  clicaveis.push(hitEdu);
 
-  estadoSalas.set(s.id, { s, r, edu, tv, telaTv, video: null, acenou: false, aceno: -1 });
+  estadoSalas.set(s.id, { s, r, edu, tv, telaTv, porta, video: null, acenou: false, aceno: -1 });
 }
+
+// ---------- Quadro de turmas da recepção (conecta recepção ↔ salas) ----------
+let quadroMeshes = [];
+function montaQuadro(turmas, profs) {
+  for (const m of quadroMeshes) scene.remove(m);
+  quadroMeshes = [];
+  for (let i = clicaveis.length - 1; i >= 0; i--) if (!clicaveis[i].parent) clicaveis.splice(i, 1);
+  const oficiais = turmas.filter((t) => t.tipo === 'oficial' && t.salaId && estadoSalas.has(t.salaId)).slice(0, 6);
+  const cab = texturaCanvas(680, 110, (c, w, h) => {
+    c.fillStyle = '#10202e'; c.fillRect(0, 0, w, h);
+    c.fillStyle = '#7dd3e8'; c.font = '700 44px system-ui'; c.textAlign = 'center'; c.textBaseline = 'middle';
+    c.fillText('QUADRO DE TURMAS — toque para ir à sala', w / 2, h / 2 + 2);
+  });
+  quadroMeshes.push(placa(3.4, 0.55, cab.tex, HALL.x1 - 0.03, 2.72, 5, -Math.PI / 2));
+  oficiais.forEach((t, i) => {
+    const s = SALAS.find((x) => x.id === t.salaId);
+    const prof = profs.find((p) => p.id === t.professorId);
+    const row = texturaCanvas(680, 96, (c, w, h) => {
+      c.fillStyle = '#ffffff'; c.fillRect(0, 0, w, h);
+      c.strokeStyle = '#cbd5dc'; c.lineWidth = 4; c.strokeRect(2, 2, w - 4, h - 4);
+      c.fillStyle = s.cor; c.beginPath(); c.arc(52, h / 2, 16, 0, Math.PI * 2); c.fill();
+      c.fillStyle = '#10202e'; c.font = '700 34px system-ui'; c.textAlign = 'left'; c.textBaseline = 'middle';
+      c.fillText(`${s.nome}${prof ? '  ·  Prof. ' + prof.nome.split(' ')[0] : ''}`, 92, h / 2 + 2);
+    });
+    const m = placa(3.4, 0.48, row.tex, HALL.x1 - 0.03, 2.12 - i * 0.58, 5, -Math.PI / 2);
+    m.userData.onClique = () => irPara(t.salaId);
+    clicaveis.push(m);
+    quadroMeshes.push(m);
+  });
+}
+async function refazPlacas() {
+  try {
+    const [turmas, posts, profs] = await Promise.all([db.lista('turmas'), db.lista('aulasPosts'), db.lista('professores')]);
+    for (const st of estadoSalas.values()) {
+      const t = turmas.find((x) => x.salaId === st.s.id && x.tipo === 'oficial');
+      const prof = t ? profs.find((p) => p.id === t.professorId) : null;
+      desenhaPorta(st.s, st.porta, t ? (prof ? 'Turma · Prof. ' + prof.nome.split(' ')[0] : 'Turma oficial') : '');
+      if (!st.video || !st.video.currentTime) {
+        const pos = posts.filter((p) => p.materiaId === st.s.id).sort((a, b) => (b.quando || 0) - (a.quando || 0))[0];
+        desenhaTv(st.tv.canvas.getContext('2d'), 1024, 576, st.s, pos ? `${pos.titulo} — ${pos.texto}` : 'Toque em "Assistir aula"');
+        st.tv.tex.needsUpdate = true;
+        if (st.semVideo) st.semVideo = false;
+      }
+    }
+    montaQuadro(turmas, profs);
+  } catch (e) { console.warn('placas:', e && e.message); }
+}
+addEventListener('dados-atualizado', (e) => {
+  if (e.detail && (e.detail.colecao === 'turmas' || e.detail.colecao === 'aulasPosts')) void refazPlacas();
+});
 
 // ---------- Movimento e colisão ----------
 const andaveis = [
@@ -311,6 +393,24 @@ function livre(x, z) {
 }
 
 const eu = { x: 0, z: 7, yaw: 0, pitch: -0.05 };
+
+// ---------- Câmera 1ª / 3ª pessoa ----------
+let modoC = 'primeira';
+function criaVisitante() {
+  const g = new THREE.Group();
+  const roupa = mat('#0f6e8c'), calca = mat('#2b3440'), pele = mat('#c58c64');
+  const add = (geo, m, x, y, z) => { const o = new THREE.Mesh(geo, m); o.position.set(x, y, z); g.add(o); return o; };
+  add(new THREE.CylinderGeometry(0.12, 0.12, 0.8, 10), calca, -0.12, 0.4, 0);
+  add(new THREE.CylinderGeometry(0.12, 0.12, 0.8, 10), calca, 0.12, 0.4, 0);
+  add(new THREE.CylinderGeometry(0.24, 0.27, 0.72, 14), roupa, 0, 1.19, 0);
+  add(new THREE.BoxGeometry(0.4, 0.5, 0.18), mat('#c2410c'), 0, 1.25, 0.28); // mochila nas costas
+  add(new THREE.SphereGeometry(0.19, 18, 14), pele, 0, 1.74, 0);
+  add(new THREE.SphereGeometry(0.195, 18, 14, 0, Math.PI * 2, 0, Math.PI / 2.2), mat('#2a1d16'), 0, 1.76, -0.01);
+  g.visible = false;
+  scene.add(g);
+  return g;
+}
+const visitante = criaVisitante();
 const teclas = new Set();
 const joy = { x: 0, y: 0 };
 let rota = null; // caminho automático
@@ -349,18 +449,33 @@ addEventListener('keydown', (e) => {
 addEventListener('keyup', (e) => teclas.delete(e.code));
 addEventListener('blur', () => teclas.clear());
 
-// olhar arrastando
-let arrasto = null;
-canvas.addEventListener('pointerdown', (e) => { arrasto = { id: e.pointerId, x: e.clientX, y: e.clientY }; canvas.setPointerCapture(e.pointerId); });
+// olhar arrastando; clique curto em objeto da cena ativa a ação dele
+let arrasto = null, downP = null, moveMax = 0, ultimoHover = 0;
+canvas.addEventListener('pointerdown', (e) => {
+  arrasto = { id: e.pointerId, x: e.clientX, y: e.clientY };
+  downP = { x: e.clientX, y: e.clientY }; moveMax = 0;
+  canvas.setPointerCapture(e.pointerId);
+});
 canvas.addEventListener('pointermove', (e) => {
+  if (downP) moveMax = Math.max(moveMax, Math.hypot(e.clientX - downP.x, e.clientY - downP.y));
   if (!arrasto || arrasto.id !== e.pointerId) return;
   const k = e.pointerType === 'touch' ? 0.006 : 0.004;
   eu.yaw += (e.clientX - arrasto.x) * k;
   eu.pitch = THREE.MathUtils.clamp(eu.pitch + (e.clientY - arrasto.y) * k, -0.9, 0.9);
   arrasto.x = e.clientX; arrasto.y = e.clientY;
   rota = null;
+  if (e.pointerType === 'mouse') {
+    const agora = performance.now();
+    if (agora - ultimoHover > 90) { ultimoHover = agora; canvas.style.cursor = objetoClicavel(e) ? 'pointer' : ''; }
+  }
 });
-const soltaArrasto = (e) => { if (arrasto && arrasto.id === e.pointerId) arrasto = null; };
+const soltaArrasto = (e) => {
+  if (arrasto && arrasto.id === e.pointerId) arrasto = null;
+  if (moveMax < 7) {
+    const h = objetoClicavel(e);
+    if (h && h.object.userData.onClique) h.object.userData.onClique();
+  }
+};
 canvas.addEventListener('pointerup', soltaArrasto);
 canvas.addEventListener('pointercancel', soltaArrasto);
 
@@ -409,6 +524,7 @@ function entrouEm(st) {
     st.acenou = true;
     st.aceno = reduzMovimento ? -1 : performance.now(); // braço acena uma vez e depois fica parado
     fala(st.s.saudacao);
+    registrarVisita(st.s.id);
   }
 }
 
@@ -426,6 +542,7 @@ function assistir() {
     v.addEventListener('playing', () => {
       const vt = new THREE.VideoTexture(v); vt.colorSpace = THREE.SRGBColorSpace;
       st.telaTv.material.map = vt; st.telaTv.material.needsUpdate = true;
+      registrarVideo();
     }, { once: true });
     st.video = v;
   }
@@ -458,6 +575,7 @@ function mostraQuestao() {
     b.addEventListener('click', () => {
       box.querySelectorAll('button').forEach((x) => (x.disabled = true));
       box.children[q.c].classList.add('certo');
+      registrarQuestao(i === q.c);
       if (i === q.c) { acertos++; $('placar').textContent = acertos; fala('Muito bem!'); }
       else { b.classList.add('errado'); fala('Quase. Veja a explicação.'); }
       $('exExplica').textContent = q.e; $('exExplica').hidden = false;
@@ -470,7 +588,7 @@ function mostraQuestao() {
 }
 $('exProxima').addEventListener('click', () => {
   if (exIdx < exSala.exercicios.length - 1) { exIdx++; mostraQuestao(); }
-  else { fechaModais(); fala(`Você terminou os exercícios de ${exSala.nome}.`); }
+  else { fechaModais(); registrarConclusao(); fala(`Você terminou os exercícios de ${exSala.nome}.`); }
 });
 
 $('btnVideo').addEventListener('click', assistir);
@@ -542,7 +660,7 @@ mapa.addEventListener('click', (e) => {
 const relogio = new THREE.Clock();
 const dir = new THREE.Vector3();
 function passo() {
-  const dt = Math.min(relogio.getDelta(), 0.05);
+  const dt = Math.min(relogio.getDelta(), 0.25); // teto 250 ms: mesmo com poucos fps a velocidade anda certa
   const agora = performance.now();
 
   // caminho automático (pausa quando um painel 2D está aberto)
@@ -593,16 +711,44 @@ function passo() {
   const nomeLugar = st ? st.s.nome : (eu.z > 0 ? 'Recepção' : 'Corredor');
   if (st !== salaAtual || $('nomeLocal').textContent !== nomeLugar) entrouEm(st);
 
-  camera.position.set(eu.x, OLHO, eu.z);
-  dir.set(Math.sin(eu.yaw) * Math.cos(eu.pitch), -Math.sin(eu.pitch), -Math.cos(eu.yaw) * Math.cos(eu.pitch));
-  camera.lookAt(camera.position.x + dir.x, camera.position.y + dir.y, camera.position.z + dir.z);
+  // câmera 1ª pessoa / 3ª pessoa
+  if (modoC === 'primeira') {
+    camera.position.set(eu.x, OLHO, eu.z);
+    dir.set(Math.sin(eu.yaw) * Math.cos(eu.pitch), -Math.sin(eu.pitch), -Math.cos(eu.yaw) * Math.cos(eu.pitch));
+    camera.lookAt(camera.position.x + dir.x, camera.position.y + dir.y, camera.position.z + dir.z);
+  } else {
+    const d = 3.1;
+    camera.position.set(eu.x - Math.sin(eu.yaw) * d, 2.9, eu.z + Math.cos(eu.yaw) * d);
+    camera.lookAt(eu.x, 1.45, eu.z);
+  }
+  visitante.position.set(eu.x, 0, eu.z);
+  visitante.rotation.y = eu.yaw;
   renderer.render(scene, camera);
   desenhaMapa();
   requestAnimationFrame(passo);
 }
 
 // ---------- Entrar ----------
+let entrouNaEscola = false;
 const btn = $('btnEntrar');
+const ROTAS = {
+  '/aluno': () => minhaArea({ falar: fala }),
+  '/professor': () => professor(),
+  '/admin': () => secretaria(),
+  '/revendedor': () => revendedor(),
+  '/aovivo': () => aoVivo(),
+  '/mensageiro': () => mensageiro(),
+  '/feira': () => feira(estadoApp.alunoId),
+  '/qr': () => bibliotecaQr(),
+};
+function abrirPainelPorHash(h) {
+  const fn = ROTAS[decodeURIComponent(h || '/')];
+  if (!fn) return false;
+  setTimeout(() => { fn(); history.replaceState(null, '', location.pathname); }, 60);
+  return true;
+}
+// rota direta (#/aluno, #/professor...) abre o painel depois de entrar
+addEventListener('hashchange', () => { if (entrouNaEscola) abrirPainelPorHash(location.hash.replace(/^#/, '')); });
 (async () => {
   try {
     await Promise.race([garantirDados(), new Promise((r) => setTimeout(r, 6000))]); // nunca trava a entrada
@@ -618,16 +764,52 @@ btn.addEventListener('click', () => {
   $('entrada').hidden = true;
   ['topo', 'menuSalas', 'mapa', 'joystick', 'btnMenu'].forEach((id) => ($(id).hidden = false));
   if (!matchMedia('(hover:hover) and (pointer:fine)').matches) $('joystick').hidden = false;
+  entrouNaEscola = true;
+  if (location.hash) abrirPainelPorHash(location.hash.replace(/^#/, '')); // link direto (?#/aluno etc.)
+  void refazPlacas(); // portas com nome da turma, TV com o último post de aula e quadro de turmas
   fala(`Bem-vindo à ${ESCOLA.nome}. Escolha uma sala para começar.`);
 });
+// chips de persona no portal: escolhe o painel e entra direto com o link certo
+if (location.hash && !ROTAS[decodeURIComponent(location.hash.replace(/^#/, ''))]) history.replaceState(null, '', location.pathname);
+document.querySelectorAll('[data-hash]').forEach((b) => b.addEventListener('click', () => {
+  location.hash = b.dataset.hash;
+  btn.click(); // entra na escola; o evento hashchange abre o painel logo em seguida
+}));
+// link de convite (?convite=CODIGO): marca o uso do código uma única vez
+const convite = new URLSearchParams(location.search).get('convite');
+if (convite) {
+  const cod = String(convite).toUpperCase().trim();
+  setTimeout(async () => {
+    try {
+      const lista = await db.lista('convites');
+      const c = lista.find((x) => x.codigo === cod);
+      if (c && !c.usadoQuando) await db.salva('convites', { ...c, usadoQuando: Date.now() });
+    } catch { /* o painel Revendedor mostra o status de qualquer forma */ }
+  }, 4000);
+}
 entrouEm(null);
 requestAnimationFrame(passo);
+
+// ---------- Câmera 1ª/3ª pessoa (tecla C ou botão 🎥) ----------
+function trocaCamera() {
+  modoC = modoC === 'primeira' ? 'terceira' : 'primeira';
+  visitante.visible = modoC === 'terceira';
+  const b = $('btnCam');
+  if (b) b.textContent = modoC === 'primeira' ? '🎥 1ª pessoa' : '🎥 3ª pessoa';
+}
+addEventListener('keydown', (e) => {
+  if (e.code === 'KeyC' && !(e.target.closest && e.target.closest('.modal, input, select, textarea'))) trocaCamera();
+});
+const btnCamEl = $('btnCam');
+if (btnCamEl) btnCamEl.addEventListener('click', trocaCamera);
 
 // ---------- Menu dos módulos (painéis 2D sobre a cena) ----------
 const btnMenu = $('btnMenu'), menuEscola = $('menuEscola');
 const MODULOS = [
   ['👤 Minha área (aluno)', () => minhaArea({ falar: fala })],
-  ['🏫 Secretaria (direção)', () => secretaria()],
+  ['🧑‍🏫 Professor', () => professor()],
+  ['🏛️ Direção e secretaria', () => secretaria()],
+  ['🤝 Revendedor', () => revendedor()],
   ['🔴 Ao vivo (aula + chat)', () => aoVivo()],
   ['💬 Mensageiro e ligação', () => mensageiro()],
   ['🛒 Feira de reforço', () => feira(estadoApp.alunoId)],
@@ -656,3 +838,9 @@ window.__escola = {
   eu, irPara, pausar: (v) => { pausado3d = !!v; },
   estado: () => ({ sala: salaAtual?.s.id || null, x: eu.x, z: eu.z, acertos }),
 };
+
+// HUD de gamificação no topo + PWA (só em http/https; file:// não registra service worker)
+iniciaHud($('topo'));
+if ('serviceWorker' in navigator && /^https?:$/.test(location.protocol)) {
+  navigator.serviceWorker.register('sw.js').catch(() => {});
+}

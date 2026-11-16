@@ -7,6 +7,10 @@
 <meta name="theme-color" content="#10202e">
 <title>Escola Virtual 3D</title>
 <link rel="stylesheet" href="style.css">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <script type="importmap">{ "imports": { "three": "./vendor/three.module.min.js" } }</script>
 </head>
 <body>
@@ -21,9 +25,19 @@
     <ul class="dicas">
       <li><b>Computador:</b> W A S D ou setas para andar, arraste o mouse para olhar.</li>
       <li><b>Celular:</b> controle no canto esquerdo para andar, arraste a tela para olhar.</li>
-      <li>Entre numa sala: o educador recebe você, a TV passa a aula e o quadro tem exercícios.</li>
+      <li><b>C</b> alterna a câmera: 1ª pessoa e 3ª pessoa (o botão 🎥 também faz).</li>
+      <li>Toque na porta de uma sala, na TV ou no educador para interagir — e confira o <b>quadro de turmas</b> na recepção.</li>
+      <li>Pontos, níveis, medalhas e missões: cada sala visitada e cada exercício rende XP. No topo aparece seu placar do jogo.</li>
     </ul>
     <button id="btnEntrar" class="btn btn-prim" disabled>Carregando…</button>
+    <div class="perfis" role="group" aria-label="Entrar direto num painel">
+      <span class="perfis-tit">Painéis:</span>
+      <button type="button" data-hash="/aluno">👤 Aluno</button>
+      <button type="button" data-hash="/professor">🧑‍🏫 Professor</button>
+      <button type="button" data-hash="/admin">🏛️ Direção</button>
+      <button type="button" data-hash="/revendedor">🤝 Revendedor</button>
+      <a href="apresentacao.html">📽️ Apresentação</a>
+    </div>
     <p id="semWebgl" class="aviso" hidden>Este aparelho não abriu o 3D (WebGL desligado). Tente outro navegador.</p>
   </div>
 </section>
@@ -32,6 +46,7 @@
 <header class="topo" id="topo" hidden>
   <div class="local"><span class="ponto" id="corLocal"></span><span id="nomeLocal">Recepção</span></div>
   <div class="pontos" title="Acertos nos exercícios">Acertos <b id="placar">0</b></div>
+  <button class="btn btn-cam" id="btnCam" type="button" title="Alternar câmera 1ª/3ª pessoa (tecla C)">🎥 1ª pessoa</button>
 </header>
 
 <nav class="salas" id="menuSalas" hidden aria-label="Ir para uma sala"></nav>
@@ -74,6 +89,7 @@
 
 <footer class="credito" id="credito"></footer>
 
+<script src="vendor/qrcode.min.js"></script>
 <script type="module" src="app.js"></script>
 </body>
 </html>

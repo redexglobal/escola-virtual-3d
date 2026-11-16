@@ -3,6 +3,7 @@
 import { db, money, dataBr, uid } from './dados.js';
 import { el, toast, abrirModal, qrDesenha } from './telas.js';
 import { SALAS, ESCOLA } from './conteudo.js';
+import { registrarChat, registrarLigacao, registrarCompra, registrarQr } from './gamificacao.js';
 
 // ---------- voz ----------
 function falar(texto, voz) {
@@ -113,6 +114,7 @@ export async function aoVivo() {
     if (!noAr) { toast('A transmissão está fora do ar'); return; }
     const m = Object.assign({ id: uid(), quando: Date.now(), tipo: 'aluno', autor: 'Aluno', texto: texto || '' }, extra || {});
     await db.salva('chatAovivo', m);
+    registrarChat();
     meusMensagens.add(m.id);
     recarrega();
   }
@@ -216,6 +218,7 @@ export function mensageiro() {
 
   async function envia(texto, extra) {
     await db.salva('mensagens', { id: uid(), quando: Date.now(), contato: conversaAtual, de: 'eu', texto: texto || '', ...(extra || {}) });
+    registrarChat();
     carregaThread();
   }
   btnEnv.addEventListener('click', () => { if (inpMsg.value.trim()) { envia(inpMsg.value.trim()); inpMsg.value = ''; } });
@@ -237,6 +240,7 @@ export function mensageiro() {
     let stream = null, ctx = null;
     try {
       stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      registrarLigacao();
       ctx = new (window.AudioContext || window.webkitAudioContext)();
       const src = ctx.createMediaStreamSource(stream);
       src.connect(ctx.destination);
@@ -349,6 +353,7 @@ export function feira(alunoIdAtual) {
           { col: 'chatAovivo', obj: { id: uid(), quando, tipo: 'sistema', autor: 'Feira', texto: `🛒 Aluno matriculado no reforço de ${t.nome}.` } },
         ]);
         toast(`Aluno matriculado no reforço de ${t.nome}`);
+        registrarCompra();
         carrega();
       });
       card.appendChild(b);
@@ -418,6 +423,7 @@ export function bibliotecaQr() {
   return painel;
 }
 function janelaQr(q) {
+  registrarQr();
   const m = abrirModal({ titulo: 'QR · ' + q.titulo, sub: q.conteudo || '', largo: 360 });
   const cv = el('canvas'); cv.width = 200; cv.height = 200; cv.style.display = 'block'; cv.style.margin = '8px auto';
   const nota = el('p', 'sub', 'Aponte a câmera do celular (no dispositivo real) para abrir este conteúdo. No computador, use o botão abaixo.');
@@ -496,6 +502,7 @@ export function chatIA({ contexto = {}, falarNo3D = true } = {}) {
     const texto = inp.value.trim();
     if (!texto) return;
     inp.value = '';
+    registrarChat();
     lista.appendChild(msgBloco('eu', 'Você', texto));
     lista.scrollTop = lista.scrollHeight;
     const pensando = msgBloco('ia', 'Educador', 'pensando…');

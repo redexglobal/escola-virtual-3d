@@ -4,7 +4,7 @@
 // Toda leitura e escrita do ambiente 3D passa por cá.
 
 const NOME_DB = 'kairos-escola';
-const VERSAO = 2; // v2: adiciona o store "config" para bancos criados na v1
+const VERSAO = 3; // v3: adiciona jogo (gamificação), convites (revendedor) e exerciciosLog
 
 // Coleções (espelham o modelo de dados do MonitON — ver docs/mapa-moniton.md)
 export const COLS = [
@@ -17,7 +17,7 @@ export const COLS = [
   'disciplinas',   // {id, nome, areaId, cor}
   'series',        // {id, nome, oficial:true|false}
   'subcategorias', // {id, nome, disciplinaId}
-  'turmas',        // {id, nome, tipo:'oficial'|'reforco', disciplinaId, professorId, preco}
+  'turmas',        // {id, nome, tipo:'oficial'|'reforco', disciplinaId, professorId, preco, salaId?}
   'matriculas',    // {id, alunoId, turmaId, tipo:'oficial'|'reforco'}
   'contratos',     // {id, alunoId, turmaId, valorTotal, parcelas, parcelasPagas}
   'compras',       // {id, alunoId, turmaId(reforço), valor, quando}
@@ -33,6 +33,9 @@ export const COLS = [
   'qrcodes',       // {id, titulo, material, disciplinaId, serieId, capitulo, frente, conteudo}
   'ia',            // {id:1, metodologia, prompts:[{id,texto}], promptAdotado}
   'config',        // {id:'live', aoVivo:boolean} · {id:'sessao', alunoId, papel}
+  'jogo',          // {id:'1', xp, medalhas:[], salasVisitadas:{}, dia, missoes:{...}, assistiuVideo,...}
+  'convites',      // {codigo, escola, quando, usadoQuando}
+  'exerciciosLog', // {id, quando, alunoId, salaId, pergunta, acertou}
 ];
 
 let dbPromise = null;
@@ -155,8 +158,8 @@ function semente() {
     { id: uid(), nome: 'Paulo Souza', tipo: 'pai', alunoId: 'al-maria', telefone: '' },
   ];
   const turmasOficiais = [
-    { id: uid(), nome: 'Turma Oficial — Matemática 1º EM', tipo: 'oficial', disciplinaId: 'matematica', professorId: prof[0].id, preco: 0 },
-    { id: uid(), nome: 'Turma Oficial — Português 1º EM', tipo: 'oficial', disciplinaId: 'portugues', professorId: prof[0].id, preco: 0 },
+    { id: uid(), nome: 'Turma Oficial — Matemática 1º EM', tipo: 'oficial', disciplinaId: 'matematica', professorId: prof[0].id, preco: 0, salaId: 'matematica' },
+    { id: uid(), nome: 'Turma Oficial — Português 1º EM', tipo: 'oficial', disciplinaId: 'portugues', professorId: prof[0].id, preco: 0, salaId: 'portugues' },
   ];
   const reforcos = [
     { id: uid(), nome: 'Reforço — Redação para provas', tipo: 'reforco', disciplinaId: 'portugues', professorId: prof[0].id, preco: 49.9 },
@@ -210,13 +213,16 @@ function semente() {
     { id: uid(), titulo: 'Ficha de Português — Vocabulário', material: 'ficha', disciplinaId: 'portugues', serieId: serieMed.id, capitulo: '', frente: '', conteudo: 'Abrir a aula de classes de palavras.' },
   ];
   const ia = [{ id: '1', metodologia: 'Acompanhar o aluno com metas claras, corrigir com paciência e celebrar cada avanço.', prompts: [{ id: 'p1', texto: 'Explique como se fossem 10 anos.' }], promptAdotado: 'Explique como se fossem 10 anos.' }];
+  const jogo = [{ id: '1', xp: 0, medalhas: [], salasVisitadas: {}, dia: '', assistiuVideo: false, abriuQr: false, comprou: false, ligou: false, missoes: { dia: '', visitas: 0, questoes: 0, interacoes: 0, ganhos: [] } }];
+  const convites = [];
+  const exerciciosLog = [];
   const diretores = [{ id: uid(), nome: 'Direção Kairós', cargo: 'Direção geral', email: 'direcao@exemplo.com.br' }];
   const escolas = [{ id: uid(), nome: 'Escola Kairós', unidade: 'Unidade central' }];
 
   const tudo = {
     alunos, professores: prof, responsaveis: resp, diretores, escolas, areas, disciplinas, series, subcats: subcats,
     turmas: [...turmasOficiais, ...reforcos], matriculas, contratos, compras, extrato, notas, metas, certificados,
-    aulasPosts, anotacoes, chatAovivo, mensagens, ligacoes, qrcodes, ia,
+    aulasPosts, anotacoes, chatAovivo, mensagens, ligacoes, qrcodes, ia, jogo, convites, exerciciosLog,
     config: [
       { id: 'live', aoVivo: false },
       { id: 'sessao', alunoId: 'al-alissom', papel: 'aluno' },
@@ -238,6 +244,9 @@ export async function garantirDados() {
       for (const c of COLS) for (const o of s[c] || []) itens.push({ col: c, obj: o });
       try { await db.salvaLote(itens); } catch (e) { console.warn('Semente:', e && e.message); }
     }
+    // v2 → v3: garanta o registro de jogo (banco antigo não tem)
+    if (!(await db.porId('jogo', '1')))
+      await db.salva('jogo', { id: '1', xp: 0, medalhas: [], salasVisitadas: {}, dia: '', assistiuVideo: false, abriuQr: false, comprou: false, ligou: false, missoes: { dia: '', visitas: 0, questoes: 0, interacoes: 0, ganhos: [] } });
   })();
   try { await semeando; } finally { semeando = null; }
 }

@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex">
+<meta name="theme-color" content="#050d1a">
+<title>Links da Escola Virtual 3D</title>
+<link rel="icon" href="icon.png">
+<style>
+:root{--navy:#050d1a;--azul:#0b1c33;--linha:rgba(242,194,48,.35);--tinta:#f4f7fb;--cinza:#9fb0c3}
+*{box-sizing:border-box}
+body{margin:0;background:radial-gradient(120% 90% at 50% -10%,#0e2a4d 0%,var(--navy) 55%);color:var(--tinta);
+  font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;min-height:100vh;padding:48px 18px 60px}
+.wrap{max-width:880px;margin:0 auto}
+.selo{display:inline-block;font-size:.72rem;font-weight:800;letter-spacing:.2em;text-transform:uppercase;color:#f2c230;margin:0 0 .8rem}
+h1{font-size:clamp(2rem,6vw,3.2rem);line-height:1.02;margin:.2rem 0 .7rem;font-weight:900}
+.sub{color:var(--cinza);font-size:1.02rem;line-height:1.55;margin:0 0 1.6rem;max-width:60ch}
+.grade{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:14px}
+.card{background:rgba(11,28,51,.85);border:1px solid rgba(255,255,255,.09);border-radius:18px;padding:18px;display:flex;gap:14px;align-items:center;text-decoration:none;color:inherit;transition:border-color .15s,transform .15s}
+.card:hover{border-color:var(--linha);transform:translateY(-2px)}
+.qr{flex:0 0 auto;width:96px;height:96px;background:#fff;border-radius:12px;padding:8px}
+.qr canvas,.qr img{width:100%;height:100%;image-rendering:pixelated}
+.qr.vazio{background:transparent;border:2px dashed rgba(255,255,255,.25);color:#9fb0c3;font-size:.62rem;display:flex;align-items:center;justify-content:center;text-align:center;padding:4px}
+.info b{display:block;font-size:1.02rem;margin-bottom:.25rem}
+.info span{font-size:.8rem;color:var(--cinza);line-height:1.4;display:block}
+.info code{font-family:ui-monospace,Menlo,monospace;font-size:.72rem;color:#f2c230;background:rgba(242,194,48,.1);border-radius:6px;padding:.1rem .35rem;word-break:break-all}
+.rodape{margin-top:34px;padding-top:18px;border-top:1px solid rgba(255,255,255,.1);color:var(--cinza);font-size:.82rem}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <p class="selo">Kairós Digital</p>
+  <h1>Escola Virtual 3D</h1>
+  <p class="sub">Cada link abre um painel diferente do mesmo ambiente. Use o QR no celular ou copie o endereço.
+  O link de convite carrega um código de revendedor (igual ao padrão <b>/convite/CODIGO</b>).</p>
+  <div class="grade" id="grade"></div>
+  <p class="rodape">Desenvolvido por Vilson Mota · Kairós Digital · <a href="." style="color:#f2c230">voltar para a escola</a></p>
+</div>
+<script src="vendor/qrcode.min.js"></script>
+<script>
+const B = location.origin + location.pathname.split('links.html')[0];
+const CARTOES = [
+  { t: '🏫 Escola 3D', s: 'Ambiente imersivo completo', href: B },
+  { t: '📽️ Apresentação comercial', s: 'Slides para reunião com a escola', href: B + 'apresentacao.html' },
+  { t: '👤 Painel do Aluno', s: 'Área do aluno: notas, boletim, metas e financeiro', href: B + '#/aluno' },
+  { t: '🧑‍🏫 Painel do Professor', s: 'Turmas, tarefas e lançamento de notas', href: B + '#/professor' },
+  { t: '🏛️ Painel da Direção', s: 'Secretaria: matrículas, contrato, caixa e quadro geral', href: B + '#/admin' },
+  { t: '🤝 Painel do Revendedor', s: 'Códigos de convite, créditos e planos', href: B + '#/revendedor' },
+  { t: '🔴 Sala ao vivo', s: 'Aula transmitida em tempo real com chat', href: B + '#/aovivo' },
+  { t: '🔗 Link de convites', s: 'Abre o painel do revendedor pronto para gerar /convite/CODIGO', href: B + '#/revendedor' },
+];
+const grade = document.getElementById('grade');
+function qrPara(canvas, texto) {
+  try {
+    const q = qrcode(0, 'M'); q.addData(texto); q.make();
+    const n = q.getModuleCount(), c = canvas.getContext('2d');
+    canvas.width = n; canvas.height = n;
+    const img = c.createImageData(n, n);
+    for (let y = 0; y < n; y++) for (let x = 0; x < n; x++) {
+      const d = q.isDark(y, x), p = (y * n + x) * 4;
+      img.data[p] = img.data[p+1] = img.data[p+2] = d ? 5 : 250;
+      img.data[p+3] = 255;
+    }
+    c.putImageData(img, 0, 0);
+  } catch (e) {
+    const div = canvas.closest('.qr');
+    div.classList.add('vazio');
+    div.textContent = 'QR indisponível';
+  }
+}
+for (const c of CARTOES) {
+  const a = document.createElement('a');
+  a.className = 'card'; a.href = c.href;
+  if (!c.href.startsWith(location.origin)) a.target = '_blank', a.rel = 'noopener';
+  a.innerHTML = '<div class="qr"></div><div class="info"><b></b><span></span><code></code></div>';
+  a.querySelector('b').textContent = c.t;
+  a.querySelector('span').textContent = c.s;
+  a.querySelector('code').textContent = c.href.replace(location.origin, '');
+  const cv = document.createElement('canvas');
+  a.querySelector('.qr').appendChild(cv);
+  grade.appendChild(a);
+  qrPara(cv, c.href);
+}
+</script>
+</body>
+</html>

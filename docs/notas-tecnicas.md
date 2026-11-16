@@ -61,3 +61,20 @@ chat ao vivo ou nos testes.
 - A ferramenta de busca do Drael (`search`) às vezes não acha nada num arquivo que existe e tem o
   texto: se der "no matches" sem sentido, confirmar com `grep -n` via shell antes de concluir que
   o código mudou.
+
+## Fase 3 (cameras, gamificação, painéis, rotas) — 2026-11
+
+- **IDB multi-store**: transação com vários stores pede ARRAY de nomes, não string com vírgula
+  (DataError). Centralizado em `tx2multi(cols)` no `dados.js`.
+- **FPS headless baixo (3–11)** trava simulação que usa delta do relógio; o teto de `dt` em
+  `app.js` ficou `Math.min(getDelta(), 0.25)` (era 0.05) — velocidade de caminhada correta até
+  4 fps, sem "teleporte" em frame lento demais.
+- **Toast antigo criava um div por chamada** e o `clearTimeout` órfão deixava divs com classe
+  'on' para sempre → interceptava clique no educador e quebrava teste-pagina. Agora é singleton
+  (`toastEl`) que é reaproveitado.
+- `abrePainel`: a `render` da aba PRECISA anexar elementos ao `corpo` recebido — o retorno dela
+  é ignorado (bug em modulo-professor.js e modulo-revendedor.js, corrigido aceitando o parâmetro).
+- QR code real via `vendor/qrcode.min.js` (qrcode-generator, MIT) como script clássico;
+  API: `qrcode(0,'M').addData(t).make()` + `getModuleCount()/isDark(y,x)`.
+- Convite de revendedor segue o padrão do guia-entregas: código de 6 letras (sem caracteres
+  ambíguos), link `${origin}${pathname}?convite=COD`, marcado como usado após 4 s.

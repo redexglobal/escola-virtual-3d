@@ -17,14 +17,16 @@ export const el = (tag, cls, html) => {
 };
 
 // ---------- Toast ----------
-let toastTimer = null;
+let toastEl = null, toastTimer = null;
 export function toast(texto) {
-  const t = el('div', 'toast', '');
-  t.textContent = texto;
-  document.body.appendChild(t);
-  requestAnimationFrame(() => t.classList.add('on'));
+  // um único elemento reutilizável: toasts em sequência nunca empilham nem ficam presos na tela
+  if (!toastEl) { toastEl = el('div', 'toast', ''); document.body.appendChild(toastEl); }
+  toastEl.textContent = texto;
+  toastEl.classList.remove('on');
+  void toastEl.offsetWidth; // reinicia a animação
+  requestAnimationFrame(() => toastEl.classList.add('on'));
   clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => { t.classList.remove('on'); setTimeout(() => t.remove(), 350); }, 2600);
+  toastTimer = setTimeout(() => toastEl.classList.remove('on'), 2600);
 }
 
 // ---------- Painel com abas ----------
@@ -263,16 +265,33 @@ export function confirmar({ titulo = 'Confirma?', texto, sim = 'Sim, confirmar',
   return wrap;
 }
 
-// ---------- QR falso porém estável (mesmo texto → mesma imagem) ----------
-// Protótipo sem internet: a imagem é determinística; no servidor (PHP) entra um gerador de QR de verdade.
+// ---------- QR code ----------
+// Usa o gerador real (vendor/qrcode.min.js, carregado por <script> clássico → window.qrcode).
+// Sem a biblioteca (ex.: testado de forma isolada), cai num padrão determinístico de mesmo texto.
 export function qrDesenha(canvas, texto) {
-  const N = 25, cel = canvas.width / N;
   const c = canvas.getContext('2d');
-  c.fillStyle = '#fff'; c.fillRect(0, 0, canvas.width, canvas.height);
+  const lado = canvas.width;
+  c.fillStyle = '#fff'; c.fillRect(0, 0, lado, canvas.height);
+  try {
+    if (typeof qrcode === 'function') {
+      const qr = qrcode(0, 'M');
+      qr.addData(String(texto));
+      qr.make();
+      const n = qr.getModuleCount(), quiet = 2;
+      const cel = Math.floor(lado / (n + quiet * 2));
+      const ox = Math.floor((lado - cel * (n + quiet * 2)) / 2);
+      c.fillStyle = '#10202e';
+      for (let y = 0; y < n; y++) for (let x = 0; x < n; x++)
+        if (qr.isDark(y, x)) c.fillRect(ox + (x + quiet) * cel, ox + (y + quiet) * cel, cel, cel);
+      return;
+    }
+  } catch {}
+  // fallback determinístico
+  const N = 25, cel = lado / N;
   let h = 2166136261 >>> 0;
-  for (const ch of texto) h = Math.imul(h ^ ch.charCodeAt(0), 16777619) >>> 0; // semente estável pelo texto
+  for (const ch of String(texto)) h = Math.imul(h ^ ch.charCodeAt(0), 16777619) >>> 0;
   const bit = () => { h = Math.imul(h ^ (h >>> 13), 0x5bd1e995) >>> 0; h ^= h >>> 15; return (h & 1) === 1; };
-  for (let i = 0; i < 40; i++) bit(); // aquece
+  for (let i = 0; i < 40; i++) bit();
   c.fillStyle = '#10202e';
   for (let y = 0; y < N; y++) for (let x = 0; x < N; x++) if (bit()) c.fillRect(x * cel, y * cel, cel * 0.92, cel * 0.92);
   const canto = (cx, cy) => {

@@ -1,0 +1,309 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex">
+<meta name="theme-color" content="#050d1a">
+<title>Apresentação — Escola Virtual 3D</title>
+<link rel="icon" href="icon.png">
+<style>
+:root{--navy:#050d1a;--navy-2:#0b1c33;--linha:rgba(242,194,48,.4);--ouro:#f2c230;--tinta:#f4f7fb;--cinza:#9fb0c3}
+*{box-sizing:border-box;margin:0}
+html,body{height:100%;background:#000;overflow:hidden;font-family:"Avenir Next",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;color:var(--tinta)}
+#palco{position:fixed;inset:0;display:flex;align-items:center;justify-content:center}
+.deck{width:1600px;height:900px;position:relative;background:radial-gradient(120% 100% at 85% -10%,#12335e 0%,var(--navy) 58%);transform-origin:center center;overflow:hidden}
+.slide{position:absolute;inset:0;padding:72px 84px;opacity:0;pointer-events:none;transition:opacity .35s ease;display:flex;flex-direction:column}
+.slide.on{opacity:1;pointer-events:auto}
+.selo{font-size:15px;font-weight:800;letter-spacing:.28em;text-transform:uppercase;color:var(--ouro);margin-bottom:18px}
+h1{font-size:96px;line-height:.98;font-weight:900;letter-spacing:-.02em}
+h2{font-size:56px;line-height:1.04;font-weight:850;letter-spacing:-.01em;margin-bottom:26px}
+h2 em{font-style:normal;color:var(--ouro)}
+.sub{font-size:24px;line-height:1.5;color:var(--cinza);max-width:64ch}
+.corpo{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,4fr);gap:48px;align-items:center;flex:1}
+.corpo.somente-texto{grid-template-columns:1fr}
+ul.lista{list-style:none;margin-top:10px}
+ul.lista li{font-size:23px;line-height:1.45;padding:11px 0 11px 34px;position:relative;border-bottom:1px solid rgba(255,255,255,.08)}
+ul.lista li:before{content:"→";position:absolute;left:2px;color:var(--ouro);font-weight:800}
+ul.lista li b{color:#fff}
+.shot{background:#fff;border-radius:18px;padding:12px;box-shadow:0 30px 80px rgba(0,0,0,.5);max-width:100%}
+.shot img{display:block;width:100%;height:auto;border-radius:10px;background:#dfe7ee}
+.duas{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+.rodape-slide{position:absolute;left:84px;right:84px;bottom:34px;display:flex;justify-content:space-between;align-items:center;font-size:15px;color:var(--cinza)}
+.barra-prog{position:absolute;left:0;top:0;height:5px;background:var(--ouro);transition:width .3s ease}
+.chip-grade{display:inline-block;border:1.5px solid var(--linha);color:var(--ouro);border-radius:999px;padding:8px 18px;font-weight:700;font-size:16px;margin:6px 8px 0 0}
+.caixa-dado{border:1.5px solid rgba(255,255,255,.14);border-radius:16px;padding:20px 22px;margin-top:16px;background:rgba(11,28,51,.6)}
+.caixa-dado b{color:var(--ouro)}
+.ctrl{position:fixed;right:22px;bottom:18px;display:flex;gap:8px;z-index:10}
+.ctrl button{width:46px;height:46px;border-radius:12px;border:1.5px solid rgba(255,255,255,.25);background:rgba(5,13,26,.75);color:#fff;font-size:20px;cursor:pointer}
+.ctrl button:hover{border-color:var(--ouro)}
+#contador{position:fixed;left:22px;bottom:24px;font-size:14px;color:rgba(255,255,255,.55);z-index:10}
+@media print{
+  html,body{background:#fff;overflow:visible}
+  #palco,.ctrl,#contador{position:static;display:block}
+  .deck{transform:none !important;width:auto;height:auto}
+  .slide{position:relative;opacity:1 !important;pointer-events:auto;page-break-after:always;min-height:100vh}
+}
+</style>
+</head>
+<body>
+<div id="palco"><div class="deck" id="deck">
+
+<section class="slide on">
+  <p class="barra-prog" style="width:100%"></p>
+  <div style="margin:auto 0;text-align:center;display:flex;flex-direction:column;align-items:center">
+    <p class="selo" style="margin-bottom:30px">Kairós Digital · Vilson Mota</p>
+    <h1>Escola Virtual 3D</h1>
+    <p class="sub" style="margin:26px auto 0;max-width:70ch;text-align:center">Um campus escolar imersivo que roda em qualquer navegador:
+    salas por matéria, educador virtual, painéis para aluno, professor, direção e revendedor — e gamificação de verdade.</p>
+    <div style="margin-top:44px">
+      <span class="chip-grade">WebGL · Three.js</span><span class="chip-grade">Sem instalação</span><span class="chip-grade">PWA / offline</span><span class="chip-grade">Funciona em celular</span>
+    </div>
+  </div>
+  <div class="rodape-slide"><span>Apresentação comercial</span><span>use ← → para navegar</span></div>
+</section>
+
+<section class="slide">
+  <p class="barra-prog"></p>
+  <p class="selo">O problema</p>
+  <h2>Escola sem presença perde <em>atenção</em>.<br>E atenção é o que mantém o aluno matriculado.</h2>
+  <ul class="lista" style="max-width:66ch">
+    <li>Aula remota clássica é <b>passeiva</b>: o aluno abre a câmera e desliga a vontade.</li>
+    <li>Portal de matrícula e boletim funciona, mas <b>não encanta</b> — não é motivo de renovação.</li>
+    <li>Escolas pequenas querem tecnologia, mas não sabem <b>de onde tirar</b>.</li>
+  </ul>
+  <div class="caixa-dado">A resposta: transformar a escola num <b>lugar</b> que o aluno entra todos os dias — com sala, gente, recompensa e propósito.</div>
+  <div class="rodape-slide"><span>Escola Virtual 3D</span></div>
+</section>
+
+<section class="slide">
+  <p class="barra-prog"></p>
+  <p class="selo">O campus</p>
+  <h2>Recepção, corredor e <em>6 salas de matéria</em></h2>
+  <div class="corpo">
+    <div>
+      <ul class="lista">
+        <li><b>Quadro de turmas</b> na recepção: tocou na turma, a escola anda até a sala.</li>
+        <li>Porta de cada sala mostra <b>a turma real e o professor</b> cadastrados.</li>
+        <li>A TV da sala exibe o <b>último post de aula</b> feito pelo professor — ou o vídeo, quando houver.</li>
+        <li>Exercícios interativos com <b>correção na hora</b> e explicação.</li>
+      </ul>
+    </div>
+    <div class="shot"><img src="docs/capturas/deck_sala.png" alt="Sala de Matemática na escola 3D"></div>
+  </div>
+  <div class="rodape-slide"><span>Escola Virtual 3D</span></div>
+</section>
+
+<section class="slide">
+  <p class="barra-prog"></p>
+  <p class="selo">Câmera</p>
+  <h2>Andar em <em>1ª pessoa</em> ou <em>3ª pessoa</em></h2>
+  <div class="corpo">
+    <div>
+      <ul class="lista">
+        <li>Tecla <b>C</b> (ou botão 🎥) alterna a câmera a qualquer momento.</li>
+        <li>No computador: <b>WASD ou setas</b> andam, Shift corre, arrastar olha ao redor.</li>
+        <li>No celular: <b>joystick na tela</b> — a escola abre sem login, em qualquer iPhone.</li>
+        <li>Nada de menus para se mover: <b>toque na porta, na TV ou no educador</b> e a cena responde.</li>
+      </ul>
+    </div>
+    <div class="shot"><img src="docs/capturas/deck_3pessoa.png" alt="Modo terceira pessoa na escola 3D"></div>
+  </div>
+  <div class="rodape-slide"><span>Escola Virtual 3D</span></div>
+</section>
+
+<section class="slide">
+  <p class="barra-prog"></p>
+  <p class="selo">Gamificação</p>
+  <h2>O aluno sobe de nível <em>estudando</em></h2>
+  <div class="corpo">
+    <div>
+      <ul class="lista">
+        <li><b>XP em tudo:</b> visitar sala, acertar questão, assistir aula, usar QR code, comprar reforço, ligar, conversar.</li>
+        <li><b>6 níveis</b>, de Calouro a Embaixador da Escola, com barra sempre visível no topo.</li>
+        <li><b>8 medalhas</b> e <b>missões diárias</b> que pedem volta à escola amanhã.</li>
+        <li>Sons discretos e confete ao subir de nível — comemoração sem bagunça.</li>
+      </ul>
+    </div>
+    <div class="shot"><img src="docs/capturas/deck_hud.png" alt="HUD de nível e XP no topo da escola"></div>
+  </div>
+  <div class="rodape-slide"><span>Escola Virtual 3D</span></div>
+</section>
+
+<section class="slide">
+  <p class="barra-prog"></p>
+  <p class="selo">Educador virtual</p>
+  <h2>O educador <em>recebe, acena e fala</em> — uma vez, como pedido</h2>
+  <div class="corpo">
+    <div>
+      <ul class="lista">
+        <li>Entrou na sala: ele <b>acena uma vez e fica parado</b>, saudando em voz alta.</li>
+        <li>Toque nele (ou no botão) para <b>conversar</b> — respostas guiadas pela matéria da sala.</li>
+        <li>A porta do <b>tutor PHP</b> já está pronta: ligado ao roboAlotv, o chat vira o tutor de verdade.</li>
+        <li>Voz do próprio aparelho: funciona sem download, inclusive no iPhone.</li>
+      </ul>
+    </div>
+    <div class="shot"><img src="docs/capturas/deck_educador.png" alt="Janela do educador virtual conversando"></div>
+  </div>
+  <div class="rodape-slide"><span>Escola Virtual 3D</span></div>
+</section>
+
+<section class="slide">
+  <p class="barra-prog"></p>
+  <p class="selo">Painéis</p>
+  <h2>Quatro portas, <em>uma mesma escola</em></h2>
+  <div class="corpo somente-texto" style="grid-template-columns:none">
+    <div class="duas" style="grid-template-columns:repeat(4,1fr)">
+      <div><div class="shot" style="padding:8px"><img src="docs/capturas/deck_minhaarea.png" alt="Painel do aluno"></div><p style="margin-top:10px;font-weight:800;font-size:19px">👤 Aluno</p><p style="color:var(--cinza);font-size:16px;line-height:1.45">Notas, boletim, metas e financeiro</p></div>
+      <div><div class="shot" style="padding:8px"><img src="docs/capturas/deck_professor.png" alt="Painel do professor"></div><p style="margin-top:10px;font-weight:800;font-size:19px">🧑‍🏫 Professor</p><p style="color:var(--cinza);font-size:16px;line-height:1.45">Turmas, postar aula na TV, resultados</p></div>
+      <div><div class="shot" style="padding:8px"><img src="docs/capturas/deck_direcao.png" alt="Painel da direção"></div><p style="margin-top:10px;font-weight:800;font-size:19px">🏛️ Direção</p><p style="color:var(--cinza);font-size:16px;line-height:1.45">Matrículas, contratos, caixa, QR codes</p></div>
+      <div><div class="shot" style="padding:8px"><img src="docs/capturas/deck_revendedor.png" alt="Painel do revendedor"></div><p style="margin-top:10px;font-weight:800;font-size:19px">🤝 Revendedor</p><p style="color:var(--cinza);font-size:16px;line-height:1.45">Códigos de convite, créditos e planos</p></div>
+    </div>
+  </div>
+  <div class="rodape-slide"><span>Cada persona entra por um link com QR code próprio</span></div>
+</section>
+
+<section class="slide">
+  <p class="barra-prog"></p>
+  <p class="selo">Convites</p>
+  <h2>Cresce como o Guia cresceu: <em>código de convite</em></h2>
+  <div class="corpo">
+    <div>
+      <ul class="lista">
+        <li>O revendedor gera <b>códigos de 6 caracteres</b> e leva um link por pessoa — igual ao padrão /convite/CODIGO.</li>
+        <li>Quem entra pelo link é <b>registrado automaticamente</b>: crédito na hora, sem planilha.</li>
+        <li>Plano de parceiro com níveis <b>Prata → Ouro → Diamante</b> conforme as ativações.</li>
+        <li>Planos de valor sugerido já estruturados: <b>Essencial, Completa, Premium</b>.</li>
+      </ul>
+    </div>
+    <div class="shot"><img src="docs/capturas/deck_revendedor.png" alt="Painel do revendedor com código de convite"></div>
+  </div>
+  <div class="rodape-slide"><span>Escola Virtual 3D</span></div>
+</section>
+
+<section class="slide">
+  <p class="barra-prog"></p>
+  <p class="selo">Vertentes extras</p>
+  <h2>Muito além da sala de aula</h2>
+  <div class="corpo somente-texto" style="grid-template-columns:none">
+    <div class="duas">
+      <div><div class="shot" style="padding:8px"><img src="docs/capturas/deck_aovivo.png" alt="Transmissão ao vivo com chat"></div><p style="margin-top:10px;font-weight:800;font-size:19px">🔴 Ao vivo + chat da sala</p><p style="color:var(--cinza);font-size:16px;line-height:1.45">O professor transmite e avisa; o aluno responde em tempo real.</p></div>
+      <div><div class="shot" style="padding:8px"><img src="docs/capturas/deck_feira.png" alt="Feira de reforço com cursos compráveis"></div><p style="margin-top:10px;font-weight:800;font-size:19px">🛒 Feira de reforço</p><p style="color:var(--cinza);font-size:16px;line-height:1.45">Cursos avulsos: o aluno compra, fica matriculado e entra no extrato.</p></div>
+    </div>
+  </div>
+  <div class="caixa-dado" style="max-width:980px;margin-top:8px">Também dentro da escola: <b>mensageiro com ligação de voz</b>, <b>biblioteca de QR codes</b> do material didático e <b>assistente IA</b> da secretaria. Tudo convivendo com o 3D, sem sair da cena.</div>
+  <div class="rodape-slide"><span>Escola Virtual 3D</span></div>
+</section>
+
+<section class="slide">
+  <p class="barra-prog"></p>
+  <p class="selo">Funciona em qualquer lugar</p>
+  <h2>Computador, tablet e iPhone — <em>e offline</em></h2>
+  <div class="corpo">
+    <div>
+      <ul class="lista">
+        <li><b>PWA instalável</b>: ícone na tela inicial, abre sem endereço, roda fora da internet.</li>
+        <li>Botões redondos que <b>não viram quadrados no iPhone</b>; abre sem precisar de login.</li>
+        <li>Os dados da demonstração ficam no aparelho (IndexedDB) — <b>porta pronta para o servidor PHP + banco real</b> da escola cliente.</li>
+        <li>Dados reais sempre: painel de direção mostra matrículas, caixa e ocupação do cadastro vivo.</li>
+      </ul>
+    </div>
+    <div class="shot" style="max-width:380px;margin-left:auto"><img src="docs/capturas/deck_mobile.png" alt="Escola 3D em modo tela de celular, câmera de terceira pessoa"></div>
+  </div>
+  <div class="rodape-slide"><span>Escola Virtual 3D</span></div>
+</section>
+
+<section class="slide">
+  <p class="barra-prog"></p>
+  <p class="selo">Links e QR codes</p>
+  <h2>Uma página, <em>um código por persona</em></h2>
+  <div class="corpo">
+    <div>
+      <ul class="lista">
+        <li>Página <b>links.html</b> com QR codes reais: escola, apresentação, aluno, professor, direção e revendedor.</li>
+        <li>O revendedor imprime, posta no WhatsApp ou fixa na parede da escola — <b>cada QR abre a porta certa</b>.</li>
+        <li>Link de convite carrega o código de origem: o funil vira número no painel.</li>
+      </ul>
+    </div>
+    <div class="shot"><img src="docs/capturas/deck_links.png" alt="Página de links com QR codes por persona"></div>
+  </div>
+  <div class="rodape-slide"><span>Escola Virtual 3D</span></div>
+</section>
+
+<section class="slide">
+  <p class="barra-prog"></p>
+  <p class="selo">Próximos passos</p>
+  <h2>Evolução já <em>desenhada</em></h2>
+  <ul class="lista" style="max-width:86ch">
+    <li><b>Fase atual (esta demo):</b> tudo funcionando em navegador, com dados locais e PWA offline.</li>
+    <li><b>Tutor de verdade:</b> ligar o roboAlotv.php do MonitON ao botão do educador — a porta já está pronta no conteudo.js.</li>
+    <li><b>Conteúdo da escola cliente:</b> vídeos por sala, currículo, séries, preços e marca próprios — troca-se conteúdo, não motor.</li>
+    <li><b>Servidor PHP + banco:</b> a camada de dados já isola cada escrita — muda-se o destino, sem reescrever os painéis.</li>
+    <li><b>Rede de revendedores:</b> códigos de convite e níveis de parceiro prontos para escalar entre escolas.</li>
+  </ul>
+  <div class="rodape-slide"><span>Escola Virtual 3D · Kairós Digital</span></div>
+</section>
+
+<section class="slide">
+  <p class="barra-prog" style="width:100%"></p>
+  <div style="margin:auto 0;text-align:center;display:flex;flex-direction:column;align-items:center">
+    <p class="selo" style="margin-bottom:26px">Fale com a gente</p>
+    <h1 style="font-size:80px">A escola que o aluno<br><em style="color:var(--ouro);font-style:normal">quer entrar</em>.</h1>
+    <p class="sub" style="margin-top:26px;text-align:center">Desenvolvido por Vilson Mota · Kairós Digital</p>
+    <div style="margin-top:36px;text-align:center">
+      <span class="chip-grade"><a href="https://www.instagram.com/_kairosdigital_/" target="_blank" rel="noopener" style="color:inherit;text-decoration:none">Instagram @_kairosdigital_</a></span>
+      <span class="chip-grade"><a href="https://wa.me/5562984924326" target="_blank" rel="noopener" style="color:inherit;text-decoration:none">WhatsApp (62) 98492-4326</a></span>
+      <span class="chip-grade"><a href="." style="color:inherit;text-decoration:none">Entrar na escola agora →</a></span>
+    </div>
+  </div>
+  <div class="rodape-slide"><span>Obrigado</span></div>
+</section>
+
+</div></div>
+
+<div id="contador">1 / 13</div>
+<div class="ctrl">
+  <button id="bAnt" aria-label="Slide anterior">←</button>
+  <button id="bProx" aria-label="Próximo slide">→</button>
+</div>
+
+<script>
+const slides = Array.from(document.querySelectorAll('.slide'));
+const N = slides.length;
+let i = 0;
+const contador = document.getElementById('contador');
+
+function vai(n) {
+  i = Math.max(0, Math.min(N - 1, n));
+  slides.forEach((s, k) => s.classList.toggle('on', k === i));
+  const prog = slides[i].querySelector('.barra-prog');
+  if (prog) prog.style.width = ((i + 1) * 100 / N) + '%';
+  contador.textContent = (i + 1) + ' / ' + N;
+  history.replaceState(null, '', '#' + (i + 1));
+}
+function escala() {
+  const d = document.getElementById('deck');
+  const s = Math.min(innerWidth / 1600, innerHeight / 900);
+  d.style.transform = 'scale(' + s + ')';
+}
+addEventListener('resize', escala);
+addEventListener('keydown', (e) => {
+  if (['ArrowRight', 'PageDown', ' ', 'Enter'].includes(e.key)) { e.preventDefault(); vai(i + 1); }
+  else if (['ArrowLeft', 'PageUp', 'Backspace'].includes(e.key)) { e.preventDefault(); vai(i - 1); }
+  else if (e.key === 'Home') vai(0);
+  else if (e.key === 'End') vai(N - 1);
+});
+document.getElementById('bProx').addEventListener('click', () => vai(i + 1));
+document.getElementById('bAnt').addEventListener('click', () => vai(i - 1));
+// toque: borda direita avança, borda esquerda volta (celular)
+addEventListener('touchend', (e) => {
+  const t = e.changedTouches[0];
+  if (t.clientX > innerWidth * 0.8) vai(i + 1);
+  else if (t.clientX < innerWidth * 0.2) vai(i - 1);
+});
+escala();
+const h = parseInt((location.hash || '').replace('#', ''), 10);
+vai(isNaN(h) ? 0 : h - 1);
+</script>
+</body>
+</html>

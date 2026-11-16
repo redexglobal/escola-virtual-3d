@@ -75,7 +75,8 @@ await page.waitForTimeout(300);
 
 // Educador IA na sala de matemática
 await page.evaluate(() => window.__escola.irPara('matematica'));
-await page.waitForTimeout(3200);
+await page.waitForSelector('#btnEducador', { timeout: 40000 }); // o andar depende do fps da máquina (no headless pode cair para poucos fps)
+await page.waitForTimeout(1200);
 await page.click('#btnEducador');
 await page.waitForTimeout(900);
 await page.screenshot({ path: '/tmp/sh_11_educador.png' });
