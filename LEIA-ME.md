@@ -6,9 +6,9 @@ TV com a aula em vídeo ou post do professor, exercícios com correção e o edu
 Câmera 1ª/3ª pessoa, gamificação (XP, níveis, medalhas, missões), quadro de turmas na recepção
 ligado às portas das salas e painéis por persona (aluno, professor, direção, revendedor).
 
-**No ar:** <https://redexglobal.github.io/escola-virtual-3d/> — repositório: <https://github.com/redexglobal/escola-virtual-3d>
-- **Apresentação comercial** (deck 16:9): https://redexglobal.github.io/escola-virtual-3d/apresentacao.html
-- **Hub de links + QR codes por persona**: https://redexglobal.github.io/escola-virtual-3d/links.html
+**No ar:** <https://escola-virtual-3d.vercel.app/> (Vercel) — <https://redexglobal.github.io/escola-virtual-3d/> (GitHub Pages) — repositório: <https://github.com/redexglobal/escola-virtual-3d>
+- **Apresentação comercial** (deck 16:9): https://escola-virtual-3d.vercel.app/apresentacao.html
+- **Hub de links + QR codes por persona**: https://escola-virtual-3d.vercel.app/links.html
 
 ## Como abrir
 Precisa de servidor (módulos JS não abrem por `file://`):

@@ -2,7 +2,7 @@
 
 Ambiente escolar imersivo navegável em 3D: corredor, salas por disciplina, educador virtual e um conjunto completo de ferramentas de escola (minha área do aluno, secretaria, ao vivo, mensageiro, feira de reforço e biblioteca de QR codes), inspirado na estrutura de plataformas de gestão escolar.
 
-**Demo no ar:** <https://redexglobal.github.io/escola-virtual-3d/>
+**Demo no ar (Vercel):** <https://escola-virtual-3d.vercel.app/> · GitHub Pages: <https://redexglobal.github.io/escola-virtual-3d/>
 
 ![Escola Virtual 3D — recepção](docs/capturas/sh_01_recepcao.png)
 
