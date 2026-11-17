@@ -13,6 +13,7 @@ export function secretaria() {
       { id: 'professores', nome: 'Professores', render: tabProfessores },
       { id: 'responsaveis', nome: 'Responsáveis', render: tabResponsaveis },
       { id: 'curriculo', nome: 'Currículo', render: tabCurriculo },
+      { id: 'grade', nome: 'Grade curricular', render: tabGrade },
       { id: 'turmas', nome: 'Turmas e cursos', render: tabTurmas },
       { id: 'financeiro', nome: 'Financeiro', render: tabFinanceiro },
       { id: 'qrcodes', nome: 'QR Codes', render: tabQrcodes },
@@ -89,8 +90,8 @@ export function secretaria() {
       botoesTopo: [botaoNovo('Novo Aluno', () => formAluno(null, c))],
     }));
   }
-  function formAluno(aluno, container) {
-    const [series, turmas] = Promise.all([db.lista('series'), db.lista('turmas')]);
+  async function formAluno(aluno, container) {
+    const [series, turmas] = await Promise.all([db.lista('series'), db.lista('turmas')]);
     container.innerHTML = '';
     container.appendChild(form({
       titulo: aluno ? 'Editar aluno' : 'Novo Aluno', botaoOk: 'Salvar aluno',
@@ -454,6 +455,77 @@ export function secretaria() {
     const bVoltar = el('button', 'btn', 'Voltar à lista');
     bVoltar.addEventListener('click', () => painel.recarregar());
     c.appendChild(bVoltar);
+  }
+
+  // ---------- Grade curricular (tópicos por série/bimestre/disciplina) ----------
+  async function tabGrade(c) {
+    const [itens, series, discs] = await Promise.all([db.lista('gradeItens'), db.lista('series'), db.lista('disciplinas')]);
+    const nomeDisc = Object.fromEntries([...SALAS.map((s) => [s.id, s.nome]), ...discs.map((d) => [d.id, d.nome])]);
+    const nomeSerie = Object.fromEntries(series.map((s) => [s.id, s.nome]));
+    const filtro = { serieId: '', bimestre: 0, disciplinaId: '' };
+    const topo = el('div', 'grade-filtros');
+    const selSerie = document.createElement('select'); selSerie.className = 'campo';
+    const selBim = document.createElement('select'); selBim.className = 'campo';
+    const selDisc = document.createElement('select'); selDisc.className = 'campo';
+    selSerie.append(new Option('— todas as séries —', ''), ...series.map((s) => new Option(s.nome, s.id)));
+    selBim.append(new Option('— todos os bimestres —', 0), ...['1º', '2º', '3º', '4º'].map((r, i) => new Option(r + ' bimestre', i + 1)));
+    selDisc.append(new Option('— todas as disciplinas —', ''), ...SALAS.map((s) => new Option(s.nome, s.id)));
+    const area = el('div');
+    const pinta = () => {
+      area.innerHTML = '';
+      const lista = itens.filter((g) => (!filtro.serieId || g.serieId === filtro.serieId) && (!filtro.bimestre || g.bimestre === filtro.bimestre) && (!filtro.disciplinaId || g.disciplinaId === filtro.disciplinaId));
+      if (!lista.length) { area.appendChild(vazio('Nenhum tópico com esse filtro.', 'Clique em “Novo tópico” para cadastrar.')); return; }
+      const t = el('table', 'tabela');
+      const th = el('thead'); const trh = el('tr');
+      ['Tópico', 'Série · bimestre', 'Disciplina', 'Vídeo', ''].forEach((x) => trh.appendChild(el('th', '', x)));
+      th.appendChild(trh); t.appendChild(th);
+      const tb = el('tbody');
+      for (const g of lista) {
+        const tr = el('tr');
+        tr.appendChild(td(`<b>${g.tema}</b><br><span class="dim">${g.resumo || ''}</span>`));
+        tr.appendChild(td((nomeSerie[g.serieId] || '—') + ' · ' + g.bimestre + 'º bim.'));
+        tr.appendChild(td(nomeDisc[g.disciplinaId] || '—'));
+        tr.appendChild(td(g.videoUrl ? el('span', 'dim', 'com link') : '—'));
+        const d = el('div', 'linhas-botoes');
+        btn(d, 'Editar', () => formGrade(g, c));
+        btn(d, 'Excluir', () => confirmar2('Excluir tópico da grade?', g.tema, async () => { await db.remove('gradeItens', g.id); toast('Tópico removido.'); painel.recarregar(); }, c));
+        tr.appendChild(td(d));
+        tb.appendChild(tr);
+      }
+      t.appendChild(tb);
+      area.appendChild(t);
+    };
+    for (const [sel, chave] of [[selSerie, 'serieId'], [selBim, 'bimestre'], [selDisc, 'disciplinaId']])
+      sel.addEventListener('change', () => { filtro[chave] = chave === 'bimestre' ? Number(sel.value) : sel.value; pinta(); });
+    topo.append(selSerie, selBim, selDisc, botaoNovo('Novo tópico', () => formGrade(null, c)));
+    c.appendChild(el('p', 'dim', 'A grade alimenta a rota de estudo do aluno (painel 📖 Meu estudo). Edite à vontade: o aluno vê na hora.'));
+    c.appendChild(topo);
+    c.appendChild(area);
+    pinta();
+  }
+  async function formGrade(item, c) {
+    const [series, discs] = await Promise.all([db.lista('series'), db.lista('disciplinas')]);
+    c.innerHTML = '';
+    c.appendChild(form({
+      titulo: item ? 'Editar tópico da grade' : 'Novo tópico da grade', botaoOk: 'Salvar tópico',
+      valores: item || {},
+      campos: [
+        { nome: 'tema', label: 'Tema do tópico', obrigatorio: true, placeholder: 'Ex.: Frações e porcentagem' },
+        { nome: 'resumo', label: 'Resumo do que o aluno vai aprender', tipo: 'area' },
+        { nome: 'serieId', label: 'Série', tipo: 'selecao', vazioOpcao: '— escolher série —', opcoes: series.map((s) => ({ v: s.id, t: s.nome })) },
+        { nome: 'bimestre', label: 'Bimestre', tipo: 'selecao', vazioOpcao: '— escolher bimestre —', opcoes: [['1', '1º bimestre'], ['2', '2º bimestre'], ['3', '3º bimestre'], ['4', '4º bimestre']].map(([v, t]) => ({ v, t })) },
+        { nome: 'disciplinaId', label: 'Disciplina', tipo: 'selecao', vazioOpcao: '— escolher disciplina —', opcoes: [...SALAS.map((s) => ({ v: s.id, t: s.nome })), ...discs.map((d) => ({ v: d.id, t: d.nome }))] },
+        { nome: 'videoUrl', label: 'Link do vídeo do tópico (opcional)', tipo: 'url', placeholder: 'https://… ou caminho local videos/x.mp4' },
+      ],
+      onOk: async (d) => {
+        if (!d.serieId || !d.bimestre || !d.disciplinaId) { toast('Preencha série, bimestre e disciplina.'); return; }
+        const rec = item ? { ...item, tema: d.tema, resumo: d.resumo, serieId: d.serieId, bimestre: Number(d.bimestre), disciplinaId: d.disciplinaId, videoUrl: d.videoUrl || '' } : { id: uid(), tema: d.tema, resumo: d.resumo || '', serieId: d.serieId, bimestre: Number(d.bimestre), disciplinaId: d.disciplinaId, videoUrl: d.videoUrl || '' };
+        await db.salva('gradeItens', rec);
+        toast('Grade atualizada. O aluno já vê na rota de estudo.');
+        painel.recarregar();
+      },
+      onCancelar: () => painel.recarregar(),
+    }));
   }
 
   // ---------- Assistente IA ----------

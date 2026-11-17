@@ -6,6 +6,13 @@ TV com a aula em vídeo ou post do professor, exercícios com correção e o edu
 Câmera 1ª/3ª pessoa, gamificação (XP, níveis, medalhas, missões), quadro de turmas na recepção
 ligado às portas das salas e painéis por persona (aluno, professor, direção, revendedor).
 
+**Fase 4 — série completa brasileira:** as 12 séries oficiais (6º ao 9º ano + EM) com bimestres;
+a direção edita a **grade curricular** (tópico por série/bimestre/disciplina); o aluno tem um
+**Meu estudo** com rota idade → série → bimestre → disciplina → tópico em 3 formatos
+(vídeo, jogo, interativo), anexo de foto do material que gera tópicos correlacionados e aba de
+material. E há uma **Visão de frente (apresentação)**: a escola vista de frente, com foto real de
+sala, quadro "no ar agora", vídeo, exercício ao vivo e o educador — sem entrar no 3D.
+
 **No ar:** <https://escola-virtual-3d.vercel.app/> (Vercel) — <https://redexglobal.github.io/escola-virtual-3d/> (GitHub Pages) — repositório: <https://github.com/redexglobal/escola-virtual-3d>
 - **Apresentação comercial** (deck 16:9): https://escola-virtual-3d.vercel.app/apresentacao.html
 - **Hub de links + QR codes por persona**: https://escola-virtual-3d.vercel.app/links.html
@@ -44,16 +51,18 @@ Estrutura espelhada do MonitON (`docs/mapa-moniton.md`), todos os dados no naveg
 | Módulo | O que faz |
 |---|---|
 | Minha área | Boletim, metas, certificado (com impressão), histórico, financeiro e anotações do aluno |
+| **Meu estudo** | Rota de estudo: **idade → série → bimestre → disciplina → tópico** da grade, em 3 formatos (vídeo, jogo, interativo); anexo de **foto do material** que gera tópicos correlacionados (ex.: "frações" vira tema de Matemática + redação de Português) e aba "Meu material" |
 | Professor | Minhas turmas com alunos matriculados, **postar aula para a TV da sala 3D**, resultados dos exercícios na escola, avisos para o chat |
-| Direção/Secretaria | Visão geral com números reais, CRUD de alunos, professores, responsáveis, currículo (área > disciplina > série), turmas e cursos, financeiro geral, QR codes e assistente IA |
+| Direção/Secretaria | Visão geral com números reais, CRUD de alunos, professores, responsáveis, currículo (área > disciplina > série), **grade curricular editável** (12 séries oficiais × bimestres × disciplinas, 288 tópicos pré-preenchidos), turmas e cursos, financeiro geral, QR codes e assistente IA |
 | Revendedor | **Convites com código de 6 letras** (quem abre `?convite=CODIGO` é registrado), créditos e planos |
 | Ao vivo | Botão liga/desliga transmissão, chat em tempo real (entre abas), áudio de 15 s, "toque" no professor |
 | Mensageiro | Conversas com secretaria/educador/família, voz e **ligação de voz** com avaliação de qualidade |
 | Feira de reforço | Catálogo de cursos, compra = matrícula + extrato + mensagem ao chat; "Zerar dados" reseta a demo |
 | Biblioteca QR | QR codes dos materiais; escanear leva até a sala 3D correspondente |
+| **Visão de frente (apresentação)** | A sala vista de frente sobre foto real: quadro "no ar agora" (tópico do bimestre pela grade), vídeo, **exercício ao vivo** e o educador — para apresentar sem entrar no 3D |
 
-As rotas `#/aluno`, `#/professor`, `#/admin`, `#/revendedor`, `#/aovivo` abrem a escola já com o
-painel certo no ar (os chips na tela inicial usam isso).
+As rotas `#/aluno`, `#/professor`, `#/admin`, `#/revendedor`, `#/aovivo`, `#/estudo` e `#/frente`
+abrem a escola já com o painel certo no ar (os chips na tela inicial usam isso).
 
 ## Gamificação
 `gamificacao.js`: XP no topo (visitar sala, responder exercício, assistir vídeo, QR, compra,
@@ -65,11 +74,12 @@ de nível (respeita "reduzir movimento"). Persiste na IndexedDB, por aluno.
 navega por **setas/espaço/Home/Fim** e por **toque nas bordas**; imprime em PDF paisagem.
 
 ## Dados (só neste navegador)
-- IndexedDB `kairos-escola` (**versão 3**, com jogos/convites/exercícios logados), camada única em
-  `dados.js` — **toda leitura e escrita passa por ela**, então trocar para o banco PHP depois não
-  muda as telas nem o 3D.
-- Semente de demonstração cria 3 alunos, 2 educadores, turmas oficiais e de reforço, contrato com
-  parcelas, notas, metas e certificado. Banco antigo (v1, sem a semente) é atualizado sozinho.
+- IndexedDB `kairos-escola` (**versão 4**, com grade curricular, log de estudo e jogos/convites),
+  camada única em `dados.js` — **toda leitura e escrita passa por ela**, então trocar para o banco
+  PHP depois não muda as telas nem o 3D.
+- Semente de demonstração cria 3 alunos, 2 educadores, turmas, contrato com parcelas, notas, metas,
+  certificado e as **12 séries oficiais brasileiras** com **288 tópicos de grade** (12 × 6 × 4).
+  Bancos antigos (v1–v3) são atualizados sozinhos, sem perder dados.
 - No servidor (PHP) a mesma camada `dados.js` será trocada por chamadas à API — o plano é previsto
   no mapa do MonitON.
 
@@ -77,6 +87,7 @@ navega por **setas/espaço/Home/Fim** e por **toque nas bordas**; imprime em PDF
     node testes/teste-pagina.mjs   # tour completo: minha área, secretaria, ao vivo, feira, educador
     node testes/teste-perfis.mjs   # sessão salva + upgrade do banco v1 antigo
     node testes/teste-fase3.mjs    # câmera 1ª/3ª, gamificação, painéis professor/revendedor, rotas #/, links e QRs
+    node testes/teste-fase4.mjs    # grade curricular, rota de estudo, 3 formatos, foto→tópicos, visão de frente
     node testes/teste-mobile.mjs   # iPhone simulado: entrada, secretaria, QR
 
 PWA instalável: `manifest.webmanifest` + `sw.js` (cache do shell; imagens ficam em cache adaptativo).

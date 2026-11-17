@@ -7,6 +7,8 @@ import { secretaria } from './modulo-secretaria.js';
 import { aoVivo, mensageiro, feira, bibliotecaQr, chatIA } from './modulo-escola.js';
 import { professor } from './modulo-professor.js';
 import { revendedor } from './modulo-revendedor.js';
+import { moduloEstudo } from './modulo-estudo.js';
+import { visaoFrente } from './visao-frente.js';
 import { iniciaHud, registrarVisita, registrarQuestao, registrarConclusao, registrarVideo } from './gamificacao.js';
 
 // ---------- Planta da escola (metros) ----------
@@ -733,6 +735,8 @@ let entrouNaEscola = false;
 const btn = $('btnEntrar');
 const ROTAS = {
   '/aluno': () => minhaArea({ falar: fala }),
+  '/estudo': () => moduloEstudo(),
+  '/frente': () => visaoFrente(),
   '/professor': () => professor(),
   '/admin': () => secretaria(),
   '/revendedor': () => revendedor(),
@@ -807,6 +811,8 @@ if (btnCamEl) btnCamEl.addEventListener('click', trocaCamera);
 const btnMenu = $('btnMenu'), menuEscola = $('menuEscola');
 const MODULOS = [
   ['👤 Minha área (aluno)', () => minhaArea({ falar: fala })],
+  ['📖 Meu estudo', () => moduloEstudo()],
+  ['🖥️ Visão de frente (apresentação)', () => visaoFrente()],
   ['🧑‍🏫 Professor', () => professor()],
   ['🏛️ Direção e secretaria', () => secretaria()],
   ['🤝 Revendedor', () => revendedor()],

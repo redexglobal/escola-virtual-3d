@@ -78,3 +78,24 @@ chat ao vivo ou nos testes.
   API: `qrcode(0,'M').addData(t).make()` + `getModuleCount()/isDark(y,x)`.
 - Convite de revendedor segue o padrão do guia-entregas: código de 6 letras (sem caracteres
   ambíguos), link `${origin}${pathname}?convite=COD`, marcado como usado após 4 s.
+
+## Fase 4 (séries brasileiras, grade, rota de estudo, visão de frente) — 2026-11
+
+- **Upgrade de versão do banco** (kairos-escola v3→v4): o bloco `onupgradedb` do `dados.js` roda em
+  `DB_VERSION`, e as sementes condicionais (gradeItens vazio → 288 tópicos; sem 'ser-1m' → 12 séries)
+  vivem no fluxo normal de garantirDados — assim banco novo e antigo chegam ao mesmo estado. O teste
+  de perfil antigo (v1) continua passando sem perder dados.
+- **`formGrade`/`formAluno`: destructure sem await mata o formulário.**
+  `const [a, b] = Promise.all(...)` SEM `await` não lança erro visível na hora — o painel abre vazio.
+  Sempre `await Promise.all`.
+- **Coluna montada mas nunca anexada**: o `lado` da visão de frente era criado e preenchido, mas
+  faltou `palco.appendChild(lado)` — sem erro nenhum, só faltava na tela. Testar pelo DOM, não só
+  pela ausência de exceção.
+- **Ordenação da grade**: `db.lista` devolve em ordem dos ids (uid com timestamp); para exibição por
+  série/bimestre/disciplina, ordenar sempre no render (`serieId → bimestre → ordem das SALAS`).
+- **Opções de `<select>` geradas por `form()`**: itens precisam ser `{v, t}`; passar tupla `[v, t]`
+  deixa o select sem valores e o Playwright dá "did not find some options".
+- **404 esperado de vídeos locais**: `videos/*.mp4` ainda não enviados → o teste-fase4 ignora 404s
+  de `.mp4` no console (o 3D mostra aviso na TV, comportamento correto).
+- Playwright: processo Chrome antigo segurando o profile `/tmp/esp-*` faz o próximo teste dar timeout
+  no `btnEntrar` sem erro visível. `pkill -f 'Chrome for Testing'` antes de reverter.

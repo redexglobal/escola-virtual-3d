@@ -4,7 +4,7 @@
 // Toda leitura e escrita do ambiente 3D passa por cá.
 
 const NOME_DB = 'kairos-escola';
-const VERSAO = 3; // v3: adiciona jogo (gamificação), convites (revendedor) e exerciciosLog
+const VERSAO = 4; // v4: adiciona gradeItens (grade curricular editável) e estudoLog (trilha de estudo)
 
 // Coleções (espelham o modelo de dados do MonitON — ver docs/mapa-moniton.md)
 export const COLS = [
@@ -31,12 +31,31 @@ export const COLS = [
   'mensagens',     // {id, de, para, autor, texto, quando}
   'ligacoes',      // {id, de, para, duracaoSeg, notaQualidade}
   'qrcodes',       // {id, titulo, material, disciplinaId, serieId, capitulo, frente, conteudo}
+  'gradeItens',    // {id, serieId, bimestre, disciplinaId, tema, resumo, videoUrl} — grade curricular editável
+  'estudoLog',     // {id, alunoId, serieId, disciplinaId, tema, modo, quando}
   'ia',            // {id:1, metodologia, prompts:[{id,texto}], promptAdotado}
   'config',        // {id:'live', aoVivo:boolean} · {id:'sessao', alunoId, papel}
   'jogo',          // {id:'1', xp, medalhas:[], salasVisitadas:{}, dia, missoes:{...}, assistiuVideo,...}
   'convites',      // {codigo, escola, quando, usadoQuando}
   'exerciciosLog', // {id, quando, alunoId, salaId, pergunta, acertou}
 ];
+
+// Série brasileira completa (Fund. I, Fund. II e Médio), com idade típica de entrada.
+// Idade é só um atalho da rota de estudo: a direção edita tudo depois no painel Grade.
+export const SERIES_BRASILEIRAS = [
+  { id: 'ser-1f', nome: '1º ano — Ensino Fundamental', etapa: 'fund1', idadeMin: 6 },
+  { id: 'ser-2f', nome: '2º ano — Ensino Fundamental', etapa: 'fund1', idadeMin: 7 },
+  { id: 'ser-3f', nome: '3º ano — Ensino Fundamental', etapa: 'fund1', idadeMin: 8 },
+  { id: 'ser-4f', nome: '4º ano — Ensino Fundamental', etapa: 'fund1', idadeMin: 9 },
+  { id: 'ser-5f', nome: '5º ano — Ensino Fundamental', etapa: 'fund1', idadeMin: 10 },
+  { id: 'ser-6f', nome: '6º ano — Ensino Fundamental', etapa: 'fund2', idadeMin: 11 },
+  { id: 'ser-7f', nome: '7º ano — Ensino Fundamental', etapa: 'fund2', idadeMin: 12 },
+  { id: 'ser-8f', nome: '8º ano — Ensino Fundamental', etapa: 'fund2', idadeMin: 13 },
+  { id: 'ser-9f', nome: '9º ano — Ensino Fundamental', etapa: 'fund2', idadeMin: 14 },
+  { id: 'ser-1m', nome: '1º ano — Ensino Médio', etapa: 'medio', idadeMin: 15 },
+  { id: 'ser-2m', nome: '2º ano — Ensino Médio', etapa: 'medio', idadeMin: 16 },
+  { id: 'ser-3m', nome: '3º ano — Ensino Médio', etapa: 'medio', idadeMin: 17 },
+].map((s) => ({ oficial: true, ...s }));
 
 let dbPromise = null;
 function abrir() {
@@ -136,9 +155,7 @@ function semente() {
     { id: 'geografia', nome: 'Geografia', cor: '#0e7490', areaId: areaHum.id },
     { id: 'ingles', nome: 'Inglês', cor: '#6d28d9', areaId: areaLing.id },
   ];
-  const serieFund = { id: uid(), nome: '5º ano — Ensino Fundamental', oficial: true };
-  const serieMed = { id: uid(), nome: '1º ano — Ensino Médio', oficial: true };
-  const series = [serieFund, serieMed];
+  const series = SERIES_BRASILEIRAS;
   const subcats = [
     { id: uid(), nome: 'Frações e porcentagem', disciplinaId: 'matematica' },
     { id: uid(), nome: 'Classes de palavras', disciplinaId: 'portugues' },
@@ -149,17 +166,17 @@ function semente() {
     { id: uid(), nome: 'Carlos Mota', materiaIds: ['historia', 'geografia'], criadoEm: t0 },
   ];
   const alunos = [
-    { id: 'al-alissom', nome: 'Alissom', email: 'alissom@exemplo.com.br', telefone: '', serieId: serieMed.id, qvp: false, criadoEm: t0 },
-    { id: 'al-maria', nome: 'Maria Souza', email: 'maria@exemplo.com.br', telefone: '', serieId: serieMed.id, qvp: false, criadoEm: t0 },
-    { id: 'al-joao', nome: 'João Pedro', email: 'joao@exemplo.com.br', telefone: '', serieId: serieMed.id, qvp: true, criadoEm: t0 },
+    { id: 'al-alissom', nome: 'Alissom', email: 'alissom@exemplo.com.br', telefone: '', serieId: 'ser-1m', qvp: false, criadoEm: t0 },
+    { id: 'al-maria', nome: 'Maria Souza', email: 'maria@exemplo.com.br', telefone: '', serieId: 'ser-1m', qvp: false, criadoEm: t0 },
+    { id: 'al-joao', nome: 'João Pedro', email: 'joao@exemplo.com.br', telefone: '', serieId: 'ser-1m', qvp: true, criadoEm: t0 },
   ];
   const resp = [
     { id: uid(), nome: 'Marta Souza', tipo: 'mae', alunoId: 'al-alissom', telefone: '' },
     { id: uid(), nome: 'Paulo Souza', tipo: 'pai', alunoId: 'al-maria', telefone: '' },
   ];
   const turmasOficiais = [
-    { id: uid(), nome: 'Turma Oficial — Matemática 1º EM', tipo: 'oficial', disciplinaId: 'matematica', professorId: prof[0].id, preco: 0, salaId: 'matematica' },
-    { id: uid(), nome: 'Turma Oficial — Português 1º EM', tipo: 'oficial', disciplinaId: 'portugues', professorId: prof[0].id, preco: 0, salaId: 'portugues' },
+    { id: uid(), nome: 'Turma Oficial — Matemática 1º EM', tipo: 'oficial', disciplinaId: 'matematica', professorId: prof[0].id, preco: 0, salaId: 'matematica', serieId: 'ser-1m' },
+    { id: uid(), nome: 'Turma Oficial — Português 1º EM', tipo: 'oficial', disciplinaId: 'portugues', professorId: prof[0].id, preco: 0, salaId: 'portugues', serieId: 'ser-1m' },
   ];
   const reforcos = [
     { id: uid(), nome: 'Reforço — Redação para provas', tipo: 'reforco', disciplinaId: 'portugues', professorId: prof[0].id, preco: 49.9 },
@@ -209,10 +226,12 @@ function semente() {
   ];
   const ligacoes = [];
   const qrcodes = [
-    { id: uid(), titulo: 'Caderno de Matemática — Cap. 3', material: 'caderno', disciplinaId: 'matematica', serieId: serieMed.id, capitulo: 'Cap. 3 — Porcentagem', frente: '1ª frente', conteudo: 'Abrir a aula de frações e porcentagem.' },
-    { id: uid(), titulo: 'Ficha de Português — Vocabulário', material: 'ficha', disciplinaId: 'portugues', serieId: serieMed.id, capitulo: '', frente: '', conteudo: 'Abrir a aula de classes de palavras.' },
+    { id: uid(), titulo: 'Caderno de Matemática — Cap. 3', material: 'caderno', disciplinaId: 'matematica', serieId: 'ser-1m', capitulo: 'Cap. 3 — Porcentagem', frente: '1ª frente', conteudo: 'Abrir a aula de frações e porcentagem.' },
+    { id: uid(), titulo: 'Ficha de Português — Vocabulário', material: 'ficha', disciplinaId: 'portugues', serieId: 'ser-1m', capitulo: '', frente: '', conteudo: 'Abrir a aula de classes de palavras.' },
   ];
   const ia = [{ id: '1', metodologia: 'Acompanhar o aluno com metas claras, corrigir com paciência e celebrar cada avanço.', prompts: [{ id: 'p1', texto: 'Explique como se fossem 10 anos.' }], promptAdotado: 'Explique como se fossem 10 anos.' }];
+  const gradeItens = sementeGrade();
+  const estudoLog = [];
   const jogo = [{ id: '1', xp: 0, medalhas: [], salasVisitadas: {}, dia: '', assistiuVideo: false, abriuQr: false, comprou: false, ligou: false, missoes: { dia: '', visitas: 0, questoes: 0, interacoes: 0, ganhos: [] } }];
   const convites = [];
   const exerciciosLog = [];
@@ -223,9 +242,11 @@ function semente() {
     alunos, professores: prof, responsaveis: resp, diretores, escolas, areas, disciplinas, series, subcats: subcats,
     turmas: [...turmasOficiais, ...reforcos], matriculas, contratos, compras, extrato, notas, metas, certificados,
     aulasPosts, anotacoes, chatAovivo, mensagens, ligacoes, qrcodes, ia, jogo, convites, exerciciosLog,
+    gradeItens, estudoLog,
     config: [
       { id: 'live', aoVivo: false },
       { id: 'sessao', alunoId: 'al-alissom', papel: 'aluno' },
+      { id: 'trial', inicio: 0 }, // recebe Date.now() na primeira entrada (teste grátis de 24 h)
     ],
   };
   const dados = {};
@@ -234,6 +255,55 @@ function semente() {
 }
 
 let semeando = null;
+// Grade padrão por disciplina (tema + resumo), distribuída nos 4 bimestres de cada série.
+const TOPICOS_GRADE = {
+  matematica: [
+    ['Números e operações', 'Operações com números naturais, inteiros e decimais; ordem de grandeza e estimativa.'],
+    ['Frações e porcentagem', 'Frações equivalentes, porcentagem no dia a dia, razão e proporção.'],
+    ['Geometria', 'Planos, retas e ângulos; área e perímetro de figuras; sólidos geométricos e volumes.'],
+    ['Estatística e probabilidade', 'Leitura de gráficos, médias, mediana e a ideia básica de probabilidade.'],
+  ],
+  portugues: [
+    ['Classes de palavras', 'Substantivos, verbos, adjetivos e pronomes com exemplos de frases reais.'],
+    ['Compreensão de textos', 'Ideia central, inferências e tipos de texto (notícia, crônica, artigo).'],
+    ['Redação', 'Estrutura do parágrafo, coesão e o caminho até o texto dissertativo.'],
+    ['Textos literários', 'Poemas, cordel e conto: leitura em voz alta, rima e figuras de linguagem.'],
+  ],
+  ciencias: [
+    ['Seres vivos', 'Células, fotossíntese, cadeias alimentares e ecossistemas brasileiros.'],
+    ['Corpo humano e saúde', 'Sistemas do corpo, nutrição, hábitos saudáveis e prevenção de doenças.'],
+    ['Terra e Sistema Solar', 'Planetas, luas, clima, ciclo da água e recursos naturais.'],
+    ['Matéria e energia', 'Estados da matéria, calor, eletricidade básica e fontes de energia.'],
+  ],
+  historia: [
+    ['Brasil: origem e colônia', 'Da chegada dos povos originários ao ciclo do açúcar e do ouro.'],
+    ['Império e República', 'Independência, Lei Áurea, Proclamação da República e o Estado Novo.'],
+    ['Cidadania e direitos', 'Constituição, deveres do cidadão, voto e participação social.'],
+    ['História local e memória', 'Pesquisa de campo na comunidade, entrevistas e linha do tempo local.'],
+  ],
+  geografia: [
+    ['Mapas e orientação', 'Escala, coordenadas, fusos horários e uso de mapas e globos.'],
+    ['Regiões e biomas do Brasil', 'As cinco regiões, biomas e atividades econômicas de cada território.'],
+    ['Cidades e campo', 'Urbano e rural, migrações, funções das cidades e transporte.'],
+    ['Clima e meio ambiente', 'Climas do Brasil, desastres naturais e sustentabilidade.'],
+  ],
+  ingles: [
+    ['Greetings e rotinas', 'Apresentações, despedidas e rotina diária com vocabulário essencial.'],
+    ['Vocabulário do dia a dia', 'Escola, família, comida e lugares: frases práticas de sobrevivência.'],
+    ['Verbo to be e frases básicas', 'Afirmativa, negativa e interrogativa com am/is/are em contexto.'],
+    ['Leitura de textos curtos', 'Entender anúncios, cardápios e mensagens curtas em inglês.'],
+  ],
+};
+function sementeGrade() {
+  const itens = [];
+  for (const serie of SERIES_BRASILEIRAS)
+    for (const [disc, topicos] of Object.entries(TOPICOS_GRADE))
+      topicos.forEach(([tema, resumo], i) =>
+        itens.push({ id: uid() + '-' + i, serieId: serie.id, bimestre: i + 1, disciplinaId: disc, tema, resumo, videoUrl: '' })
+      );
+  return itens;
+}
+
 export async function garantirDados() {
   if (semeando) return semeando;
   semeando = (async () => {
@@ -247,6 +317,10 @@ export async function garantirDados() {
     // v2 → v3: garanta o registro de jogo (banco antigo não tem)
     if (!(await db.porId('jogo', '1')))
       await db.salva('jogo', { id: '1', xp: 0, medalhas: [], salasVisitadas: {}, dia: '', assistiuVideo: false, abriuQr: false, comprou: false, ligou: false, missoes: { dia: '', visitas: 0, questoes: 0, interacoes: 0, ganhos: [] } });
+    // v3 → v4: banco antigo ganha as séries brasileiras, a grade e o trial
+    if (!(await db.porId('series', 'ser-1m'))) await db.salvaLote(SERIES_BRASILEIRAS.map((o) => ({ col: 'series', obj: o })));
+    if ((await db.lista('gradeItens')).length === 0) await db.salvaLote(sementeGrade().map((o) => ({ col: 'gradeItens', obj: o })));
+    if (!(await db.porId('config', 'trial'))) await db.salva('config', { id: 'trial', inicio: 0 });
   })();
   try { await semeando; } finally { semeando = null; }
 }

@@ -8,6 +8,10 @@ export const ESCOLA = {
   // Endereço do educador virtual (tutor em PHP). Vazio = botão mostra aviso.
   // Ex.: 'https://seu-dominio/roboAlotv.php'
   tutorUrl: '',
+  // Foto real da frente da escola (troque em assets/ pela fachada de cada cliente).
+  frenteFoto: 'assets/frente-escola.jpg',
+  // Foto real de sala usada de fundo na tela de estudo.
+  salaReal: 'assets/sala-real.jpg',
 };
 
 export const AUTORIA = {

@@ -1,9 +1,11 @@
 // Service worker da Escola Virtual 3D: app shell em cache-first para funcionar offline.
 // Vídeos e áudio nunca entram em cache (ficam só no servidor).
-const CACHE = 'escola-3d-v1';
+const CACHE = 'escola-3d-v2';
 const SHELL = [
   './', './index.html', './app.js', './telas.js', './dados.js', './conteudo.js', './gamificacao.js',
   './modulo-aluno.js', './modulo-secretaria.js', './modulo-escola.js', './modulo-professor.js', './modulo-revendedor.js',
+  './modulo-estudo.js', './visao-frente.js',
+  './assets/frente-escola.jpg', './assets/sala-real.jpg',
   './style.css', './vendor/three.module.min.js', './vendor/qrcode.min.js',
   './links.html', './apresentacao.html', './manifest.webmanifest', './icon.png',
 ];
